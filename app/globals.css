@@ -369,6 +369,33 @@ body {
   border-bottom: 1px solid var(--border);
 }
 .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+.split-toggle-row {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--text-secondary);
+  cursor: pointer; margin-bottom: 10px;
+  user-select: none;
+}
+.split-mode-toggle {
+  display: inline-flex; border: 1px solid var(--border-md);
+  border-radius: var(--radius-sm); overflow: hidden; margin-left: 4px;
+}
+.split-mode-btn {
+  border: none; background: transparent;
+  padding: 2px 8px; font-size: 11px; cursor: pointer;
+  color: var(--text-secondary); font-family: var(--font);
+  transition: all 0.15s;
+}
+.split-mode-btn.active {
+  background: var(--gold-dim);
+  color: var(--gold);
+  font-weight: 600;
+}
+.split-hint {
+  font-size: 12px; color: var(--text-secondary);
+  background: var(--gold-dim); border: 1px solid rgba(184,136,10,0.2);
+  border-radius: var(--radius-sm); padding: 8px 12px;
+  margin-bottom: 4px;
+}
 
 /* ── Fullscreen overlays ──────────────────────────────────────────────────── */
 .fullscreen-overlay {
