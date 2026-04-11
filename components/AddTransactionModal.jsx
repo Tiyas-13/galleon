@@ -4,16 +4,18 @@ import { useApp } from '@/context/AppContext';
 
 const today = () => new Date().toISOString().split('T')[0];
 
-export default function AddTransactionModal({ onClose }) {
-  const { state, addTransaction } = useApp();
-  const [type,       setType]       = useState('expense');
-  const [desc,       setDesc]       = useState('');
-  const [amount,     setAmount]     = useState('');
-  const [date,       setDate]       = useState(today());
-  const [cat,        setCat]        = useState(state.categories[0] ?? '');
-  const [from,       setFrom]       = useState(state.accounts[0]?.id ?? '');
-  const [to,         setTo]         = useState(state.accounts[1]?.id ?? state.accounts[0]?.id ?? '');
-  const [notes,      setNotes]      = useState('');
+export default function AddTransactionModal({ onClose, initialData }) {
+  const { state, addTransaction, updateTransaction } = useApp();
+  const editing = !!initialData;
+
+  const [type,       setType]       = useState(initialData?.type  ?? 'expense');
+  const [desc,       setDesc]       = useState(initialData?.desc  ?? '');
+  const [amount,     setAmount]     = useState(initialData?.amount?.toString() ?? '');
+  const [date,       setDate]       = useState(initialData?.date  ?? today());
+  const [cat,        setCat]        = useState(initialData?.cat   ?? state.categories[0] ?? '');
+  const [from,       setFrom]       = useState(initialData?.from  ?? state.accounts[0]?.id ?? '');
+  const [to,         setTo]         = useState(initialData?.to    ?? state.accounts[1]?.id ?? state.accounts[0]?.id ?? '');
+  const [notes,      setNotes]      = useState(initialData?.notes ?? '');
 
   // Split fields (only relevant when type === 'expense')
   const [isSplit,    setIsSplit]    = useState(false);
@@ -52,22 +54,19 @@ export default function AddTransactionModal({ onClose }) {
         alert('Your share must be between 0 and the total amount.');
         return;
       }
-      await addTransaction({
-        type: 'expense', desc: desc.trim(), amount: share,
-        date, cat, from, to: null, notes: notes.trim(),
-      });
+      await addTransaction({ type: 'expense', desc: desc.trim(), amount: share, date, cat, from, to: null, notes: notes.trim() });
       if (remainder > 0.001) {
-        await addTransaction({
-          type: 'transfer', desc: `Split: ${desc.trim()}`, amount: remainder,
-          date, cat: 'Splits', from, to: splitsAcct, notes: '',
-        });
+        await addTransaction({ type: 'transfer', desc: `Split: ${desc.trim()}`, amount: remainder, date, cat: 'Splits', from, to: splitsAcct, notes: '' });
       }
+    } else if (editing) {
+      await updateTransaction(initialData.id, {
+        type, desc: desc.trim(), amount: amt, date, notes: notes.trim(),
+        cat, from, to: isTransfer ? to : null,
+      });
     } else {
       await addTransaction({
         type, desc: desc.trim(), amount: amt, date, notes: notes.trim(),
-        cat,
-        from,
-        to: isTransfer ? to : null,
+        cat, from, to: isTransfer ? to : null,
       });
     }
     onClose();
@@ -76,7 +75,7 @@ export default function AddTransactionModal({ onClose }) {
   return (
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal">
-        <div className="modal-title">Add transaction</div>
+        <div className="modal-title">{editing ? 'Edit transaction' : 'Add transaction'}</div>
 
         <div className="type-tabs">
           {['expense', 'income', 'transfer'].map(t => (
@@ -193,7 +192,7 @@ export default function AddTransactionModal({ onClose }) {
 
         <div className="modal-footer">
           <button className="btn" onClick={onClose}>Cancel</button>
-          <button className="btn primary" onClick={handleSave}>Save transaction</button>
+          <button className="btn primary" onClick={handleSave}>{editing ? 'Save changes' : 'Save transaction'}</button>
         </div>
       </div>
     </div>

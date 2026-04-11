@@ -136,6 +136,20 @@ export function AppProvider({ uid, demo = false, children }) {
     });
   }
 
+  async function updateTransaction(id, newData) {
+    setState(prev => {
+      const old = prev.transactions.find(t => t.id === id);
+      if (!old) return prev;
+      let accounts = applyBalances(prev.accounts, old, true); // reverse old
+      const updated = { id, ...newData };
+      accounts = applyBalances(accounts, updated);            // apply new
+      const transactions = prev.transactions.map(t => t.id === id ? updated : t);
+      if (!demo) { const { id: tid, ...data } = updated; setDoc(txnRef(tid), data); }
+      writeSettings({ ...prev, accounts });
+      return { ...prev, transactions, accounts };
+    });
+  }
+
   async function deleteTransaction(id) {
     setState(prev => {
       const txn = prev.transactions.find(t => t.id === id);
@@ -159,7 +173,7 @@ export function AppProvider({ uid, demo = false, children }) {
   }
 
   return (
-    <AppContext.Provider value={{ state, saved, saveSettings, addTransaction, deleteTransaction, resetAll }}>
+    <AppContext.Provider value={{ state, saved, saveSettings, addTransaction, updateTransaction, deleteTransaction, resetAll }}>
       {children}
     </AppContext.Provider>
   );

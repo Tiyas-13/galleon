@@ -6,7 +6,8 @@ import AddTransactionModal from './AddTransactionModal';
 export default function TransactionsPage() {
   const { state, deleteTransaction } = useApp();
   const fmt = useFmt();
-  const [showModal, setShowModal] = useState(false);
+  const [showModal,  setShowModal]  = useState(false);
+  const [editTxn,    setEditTxn]    = useState(null);
   const [filterType, setFilterType] = useState('');
   const [filterCat,  setFilterCat]  = useState('');
   const [filterAcct, setFilterAcct] = useState('');
@@ -59,6 +60,7 @@ export default function TransactionsPage() {
               txn={t}
               acctMap={acctMap}
               fmt={fmt}
+              onEdit={() => setEditTxn(t)}
               onDelete={handleDelete}
             />
           ))
@@ -66,25 +68,26 @@ export default function TransactionsPage() {
       </div>
 
       {showModal && <AddTransactionModal onClose={() => setShowModal(false)} />}
+      {editTxn   && <AddTransactionModal initialData={editTxn} onClose={() => setEditTxn(null)} />}
     </div>
   );
 }
 
-function TransactionItem({ txn, acctMap, fmt, onDelete }) {
+function TransactionItem({ txn, acctMap, fmt, onEdit, onDelete }) {
   const sign = txn.type === 'expense' ? '−' : txn.type === 'income' ? '+' : '';
   const meta = txn.type === 'transfer'
     ? `${acctMap[txn.from] ?? '?'} → ${acctMap[txn.to] ?? '?'} · ${txn.date}`
     : `${txn.cat} · ${acctMap[txn.from] ?? '?'} · ${txn.date}`;
 
   return (
-    <div className={`txn-item ${txn.type}`}>
+    <div className={`txn-item ${txn.type}`} onClick={onEdit} style={{ cursor: 'pointer' }}>
       <div className={`txn-dot ${txn.type}`} />
       <div className="txn-info">
         <div className="txn-name">{txn.desc}</div>
         <div className="txn-meta">{meta}{txn.notes ? ` · ${txn.notes}` : ''}</div>
       </div>
       <div className={`txn-amount ${txn.type}`}>{sign}{fmt(txn.amount)}</div>
-      <button className="txn-del" onClick={() => onDelete(txn.id)}>&times;</button>
+      <button className="txn-del" onClick={e => { e.stopPropagation(); onDelete(txn.id); }}>&times;</button>
     </div>
   );
 }
