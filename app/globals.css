@@ -880,6 +880,31 @@ body {
   box-shadow: 0 2px 12px rgba(0,0,0,0.2);
 }
 
+.insight-toast {
+  position: fixed;
+  bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: rgba(28, 14, 6, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--text-primary);
+  font-size: 13px; font-family: var(--font); line-height: 1.4;
+  padding: 11px 20px;
+  border-radius: 99px;
+  border: 1px solid rgba(201,149,42,0.3);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.35);
+  display: flex; align-items: center; gap: 8px;
+  z-index: 299;
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: 90vw;
+  animation: insight-rise 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.insight-toast-icon { color: var(--gold); flex-shrink: 0; }
+@keyframes insight-rise {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
 /* ── Mobile ───────────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
   /* Page */

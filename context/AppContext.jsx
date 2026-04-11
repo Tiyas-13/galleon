@@ -60,8 +60,10 @@ const DEMO_STATE = {
 
 export function AppProvider({ uid, demo = false, children }) {
   const [state, setState] = useState(demo ? DEMO_STATE : DEFAULT_STATE);
-  const [saved, setSaved] = useState(false);
-  const savedTimer        = useRef(null);
+  const [saved,   setSaved]   = useState(false);
+  const [insight, setInsight] = useState('');
+  const savedTimer   = useRef(null);
+  const insightTimer = useRef(null);
 
   const settingsRef = !demo ? doc(db, 'users', uid, 'data', 'settings') : null;
   const txnsCol     = !demo ? collection(db, 'users', uid, 'transactions') : null;
@@ -99,6 +101,13 @@ export function AppProvider({ uid, demo = false, children }) {
     setSaved(true);
     clearTimeout(savedTimer.current);
     savedTimer.current = setTimeout(() => setSaved(false), 1500);
+  }
+
+  // ── Insight toast ─────────────────────────────────────────────────────────
+  function showInsight(text) {
+    setInsight(text);
+    clearTimeout(insightTimer.current);
+    insightTimer.current = setTimeout(() => setInsight(''), 4500);
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -185,7 +194,7 @@ export function AppProvider({ uid, demo = false, children }) {
   }
 
   return (
-    <AppContext.Provider value={{ state, saved, saveSettings, addTransaction, updateTransaction, deleteTransaction, resetAll }}>
+    <AppContext.Provider value={{ state, saved, insight, showInsight, saveSettings, addTransaction, updateTransaction, deleteTransaction, resetAll }}>
       {children}
     </AppContext.Provider>
   );

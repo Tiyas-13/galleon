@@ -5,7 +5,7 @@ import { useApp } from '@/context/AppContext';
 const today = () => new Date().toISOString().split('T')[0];
 
 export default function AddTransactionModal({ onClose, initialData }) {
-  const { state, addTransaction, updateTransaction, saveSettings } = useApp();
+  const { state, addTransaction, updateTransaction, saveSettings, showInsight } = useApp();
   const editing = !!initialData?.id; // only true when editing an existing transaction (has an id)
 
   const [type,       setType]       = useState(initialData?.type  ?? 'expense');
@@ -19,7 +19,6 @@ export default function AddTransactionModal({ onClose, initialData }) {
   const [reversal,   setReversal]   = useState(initialData?.reversal ?? false);
   const [newCat,     setNewCat]     = useState('');
   const [addingCat,  setAddingCat]  = useState(false);
-  const [insight,    setInsight]    = useState('');
   const newCatRef = useRef(null);
 
   function computeInsight(txnType, txnCat, txnAmount) {
@@ -135,12 +134,8 @@ export default function AddTransactionModal({ onClose, initialData }) {
       });
     }
 
-    if (insightText) {
-      setInsight(insightText);
-      setTimeout(onClose, 2200);
-    } else {
-      onClose();
-    }
+    if (insightText) showInsight(insightText);
+    onClose();
   }
 
   return (
@@ -288,17 +283,9 @@ export default function AddTransactionModal({ onClose, initialData }) {
           </div>
         </div>
 
-        {insight && (
-          <div className="modal-insight">
-            <span className="modal-insight-icon">✦</span> {insight}
-          </div>
-        )}
-
         <div className="modal-footer">
           <button className="btn" onClick={onClose}>Cancel</button>
-          <button className="btn primary" onClick={handleSave} disabled={!!insight}>
-            {editing ? 'Save changes' : 'Save transaction'}
-          </button>
+          <button className="btn primary" onClick={handleSave}>{editing ? 'Save changes' : 'Save transaction'}</button>
         </div>
       </div>
     </div>

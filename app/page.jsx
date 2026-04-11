@@ -49,7 +49,7 @@ const PAGES = {
 };
 
 function AppShell() {
-  const { state, saved } = useApp();
+  const { state, saved, insight, showInsight } = useApp();
   const [activePage, setActivePage] = useState('home');
 
   if (!state.loaded)    return <div className="loading-screen">Galleon</div>;
@@ -65,6 +65,12 @@ function AppShell() {
         <PageComponent setActivePage={setActivePage} />
       </main>
       {saved && <div className="saved-toast">Saved</div>}
+      {insight && (
+        <div className="insight-toast" onClick={() => showInsight('')}>
+          <span className="insight-toast-icon">✦</span>
+          <span>{insight}</span>
+        </div>
+      )}
       <AiPanel />
     </>
   );
