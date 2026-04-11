@@ -77,7 +77,7 @@ export default function AccountsPage() {
                   <div className={`account-balance ${a.balance >= 0 ? 'positive' : 'negative'}`}>
                     {a.balance < 0 ? '−' : ''}{fmt(Math.abs(a.balance))}
                   </div>
-                  <button className="btn sm" onClick={() => startEdit(a)}>Edit</button>
+                  <button className="txn-del" onClick={() => startEdit(a)} title="Edit account" style={{ opacity: 0.45, fontSize: 15 }}>✎</button>
                 </div>
               </>
             )}
