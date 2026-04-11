@@ -1,94 +1,116 @@
 'use client';
 import { useState } from 'react';
-import { useApp, useFmt } from '@/context/AppContext';
+import dynamic from 'next/dynamic';
+import { useApp } from '@/context/AppContext';
+import { DEFAULT_WIDGETS } from '@/context/AppContext';
+import IncomeVsExpenses   from './widgets/IncomeVsExpenses';
+import ExpensesByCategory from './widgets/ExpensesByCategory';
+import BudgetOverview     from './widgets/BudgetOverview';
+import AccountBalances    from './widgets/AccountBalances';
+import TopSpending        from './widgets/TopSpending';
+import MonthComparison    from './widgets/MonthComparison';
+import TopCategories      from './widgets/TopCategories';
 
-const PERIODS = [
-  { key: 'day',   label: 'Today' },
-  { key: 'month', label: 'This month' },
-  { key: 'year',  label: 'This year' },
-  { key: 'all',   label: 'All time' },
+// Load grid only on client — it needs browser APIs
+const WidgetGrid = dynamic(() => import('./WidgetGrid'), { ssr: false });
+
+const WIDGET_CATALOG = [
+  { type: 'incomeVsExpenses',   label: 'Income vs Expenses',   desc: 'Income, spending and savings rate' },
+  { type: 'expensesByCategory', label: 'Expenses by Category', desc: 'Bar chart of spending per category' },
+  { type: 'budgetOverview',     label: 'Budget Overview',      desc: 'Progress bars for all your budgets' },
+  { type: 'accountBalances',    label: 'Account Balances',     desc: 'Balances and net worth' },
+  { type: 'topSpending',        label: 'Top Transactions',     desc: 'Biggest expenses this period' },
+  { type: 'monthComparison',    label: 'Month Comparison',     desc: 'This month vs last month spending' },
+  { type: 'topCategories',      label: 'Top Categories',       desc: 'Biggest spending categories with % breakdown' },
 ];
 
-function filterByPeriod(txns, period) {
-  const now = new Date();
-  return txns.filter(t => {
-    const d = new Date(t.date + 'T12:00:00');
-    if (period === 'day')   return d.toDateString() === now.toDateString();
-    if (period === 'month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    if (period === 'year')  return d.getFullYear() === now.getFullYear();
-    return true;
-  });
-}
+export const WIDGET_COMPONENTS = {
+  incomeVsExpenses:   IncomeVsExpenses,
+  expensesByCategory: ExpensesByCategory,
+  budgetOverview:     BudgetOverview,
+  accountBalances:    AccountBalances,
+  topSpending:        TopSpending,
+  monthComparison:    MonthComparison,
+  topCategories:      TopCategories,
+};
+
+const PERIODS = [
+  { key: 'month', label: 'This month' },
+  { key: 'year',  label: 'This year'  },
+  { key: 'all',   label: 'All time'   },
+];
 
 export default function OverviewPage() {
-  const { state }    = useApp();
-  const fmt          = useFmt();
-  const [period, setPeriod] = useState('month');
+  const { state, saveSettings } = useApp();
+  const [showPicker, setShowPicker] = useState(false);
+  const [period,     setPeriod]     = useState('month');
+  const widgets = state.widgets ?? DEFAULT_WIDGETS;
 
-  const txns = filterByPeriod(state.transactions, period);
-  const exp  = txns.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-  const inc  = txns.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-  const tra  = txns.filter(t => t.type === 'transfer').reduce((s, t) => s + t.amount, 0);
-  const net  = inc - exp;
+  function addWidget(type) {
+    if (widgets.find(w => w.type === type)) return;
+    const sizes = { incomeVsExpenses: [6,6], expensesByCategory: [6,8], budgetOverview: [6,8], accountBalances: [6,6], topSpending: [6,8], monthComparison: [6,6], topCategories: [6,8] };
+    const [w, h] = sizes[type] ?? [6, 6];
+    saveSettings({ widgets: [...widgets, { i: type + '-' + Date.now(), type, x: 0, y: Infinity, w, h }] });
+    setShowPicker(false);
+  }
 
-  const ec = {}, ic = {};
-  txns.filter(t => t.type === 'expense').forEach(t => { ec[t.cat] = (ec[t.cat] || 0) + t.amount; });
-  txns.filter(t => t.type === 'income').forEach(t => { ic[t.cat] = (ic[t.cat] || 0) + t.amount; });
+  function removeWidget(id) {
+    saveSettings({ widgets: widgets.filter(w => w.i !== id) });
+  }
+
+  function onLayoutChange(layout) {
+    const updated = widgets.map(w => {
+      const l = layout.find(l => l.i === w.i);
+      return l ? { ...w, x: l.x, y: l.y, w: l.w, h: l.h } : w;
+    });
+    saveSettings({ widgets: updated });
+  }
+
+  const activeTypes = new Set(widgets.map(w => w.type));
 
   return (
-    <div className="page">
-      <div className="section-title" style={{ marginBottom: 16 }}>Overview</div>
-
-      <div className="period-tabs">
-        {PERIODS.map(p => (
-          <button
-            key={p.key}
-            className={`period-tab${period === p.key ? ' active' : ''}`}
-            onClick={() => setPeriod(p.key)}
-          >
-            {p.label}
-          </button>
-        ))}
+    <div className="page page-wide">
+      <div className="section-header">
+        <div className="section-title">Overview</div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div className="period-tabs" style={{ marginBottom: 0 }}>
+            {PERIODS.map(p => (
+              <button key={p.key} className={`period-tab${period === p.key ? ' active' : ''}`} onClick={() => setPeriod(p.key)}>{p.label}</button>
+            ))}
+          </div>
+          <button className="btn primary" onClick={() => setShowPicker(true)}>+ Add widget</button>
+        </div>
       </div>
 
-      <div className="metric-grid">
-        <Metric label="Total expenses" value={fmt(exp)} type="expense" />
-        <Metric label="Total income"   value={fmt(inc)} type="income" />
-        <Metric label="Net"            value={(net >= 0 ? '+' : '−') + fmt(Math.abs(net))} type={`net${net < 0 ? ' negative' : ''}`} valueType={net >= 0 ? 'income' : 'expense'} />
-        <Metric label="Transfers"      value={fmt(tra)} type="transfer" />
-      </div>
+      <WidgetGrid
+        widgets={widgets}
+        period={period}
+        onLayoutChange={onLayoutChange}
+        onRemove={removeWidget}
+      />
 
-      <div className="card">
-        <div className="card-title">Expenses by category</div>
-        <CategoryBars data={ec} fmt={fmt} />
-      </div>
-      <div className="card">
-        <div className="card-title">Income by category</div>
-        <CategoryBars data={ic} fmt={fmt} isIncome />
-      </div>
+      {showPicker && (
+        <div className="modal-overlay" onClick={e => e.target === e.currentTarget && setShowPicker(false)}>
+          <div className="modal" style={{ maxWidth: 460 }}>
+            <div className="modal-title">Add widget</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
+              {WIDGET_CATALOG.map(c => {
+                const added = activeTypes.has(c.type);
+                return (
+                  <button key={c.type} className={`widget-picker-item${added ? ' added' : ''}`} onClick={() => !added && addWidget(c.type)} disabled={added}>
+                    <div className="widget-picker-label">{c.label}</div>
+                    <div className="widget-picker-desc">{c.desc}</div>
+                    {added && <span className="widget-picker-badge">Added</span>}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="modal-footer">
+              <button className="btn" onClick={() => setShowPicker(false)}>Done</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
-
-function Metric({ label, value, type, valueType }) {
-  return (
-    <div className={`metric ${type}`}>
-      <div className="metric-label">{label}</div>
-      <div className={`metric-value ${valueType ?? type}`}>{value}</div>
-    </div>
-  );
-}
-
-function CategoryBars({ data, fmt, isIncome = false }) {
-  const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
-  const max = entries[0]?.[1] || 1;
-  if (!entries.length) return <div style={{ color: 'var(--text-secondary)', fontSize: 13 }}>None in this period.</div>;
-  return entries.map(([cat, val]) => (
-    <div className="cat-bar-row" key={cat}>
-      <div className="cat-bar-label"><span>{cat}</span><span>{fmt(val)}</span></div>
-      <div className="cat-bar-track">
-        <div className={`cat-bar-fill${isIncome ? ' income' : ''}`} style={{ width: `${(val / max * 100).toFixed(1)}%` }} />
-      </div>
-    </div>
-  ));
 }

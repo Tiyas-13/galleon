@@ -1,11 +1,11 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useApp } from '@/context/AppContext';
 
 const today = () => new Date().toISOString().split('T')[0];
 
 export default function AddTransactionModal({ onClose, initialData }) {
-  const { state, addTransaction, updateTransaction } = useApp();
+  const { state, addTransaction, updateTransaction, saveSettings } = useApp();
   const editing = !!initialData;
 
   const [type,       setType]       = useState(initialData?.type  ?? 'expense');
@@ -17,6 +17,9 @@ export default function AddTransactionModal({ onClose, initialData }) {
   const [to,         setTo]         = useState(initialData?.to    ?? state.accounts[1]?.id ?? state.accounts[0]?.id ?? '');
   const [notes,      setNotes]      = useState(initialData?.notes ?? '');
   const [reversal,   setReversal]   = useState(initialData?.reversal ?? false);
+  const [newCat,     setNewCat]     = useState('');
+  const [addingCat,  setAddingCat]  = useState(false);
+  const newCatRef = useRef(null);
 
   // Split fields (only relevant when type === 'expense')
   const [isSplit,    setIsSplit]    = useState(false);
@@ -36,6 +39,17 @@ export default function AddTransactionModal({ onClose, initialData }) {
       : parseFloat(myShare || 0)
     : totalAmt;
   const remainder = showSplit ? Math.max(0, totalAmt - computedShare) : 0;
+
+  async function handleAddCategory() {
+    const val = newCat.trim();
+    if (!val) return;
+    if (!state.categories.includes(val)) {
+      await saveSettings({ categories: [...state.categories, val] });
+    }
+    setCat(val);
+    setNewCat('');
+    setAddingCat(false);
+  }
 
   function handleTypeChange(t) {
     setType(t);
@@ -154,10 +168,30 @@ export default function AddTransactionModal({ onClose, initialData }) {
             <input type="date" value={date} onChange={e => setDate(e.target.value)} />
           </div>
           <div className="form-group">
-            <label>Category</label>
-            <select value={cat} onChange={e => setCat(e.target.value)}>
-              {[...state.categories].sort((a, b) => a.localeCompare(b)).map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+            <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              Category
+              <button type="button" className="inline-add-btn" onClick={() => { setAddingCat(a => !a); setTimeout(() => newCatRef.current?.focus(), 50); }}>
+                {addingCat ? '✕ Cancel' : '+ New'}
+              </button>
+            </label>
+            {addingCat ? (
+              <div style={{ display: 'flex', gap: 6 }}>
+                <input
+                  ref={newCatRef}
+                  type="text"
+                  value={newCat}
+                  onChange={e => setNewCat(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') handleAddCategory(); if (e.key === 'Escape') setAddingCat(false); }}
+                  placeholder="Category name"
+                  style={{ flex: 1 }}
+                />
+                <button type="button" className="btn sm primary" onClick={handleAddCategory}>Add</button>
+              </div>
+            ) : (
+              <select value={cat} onChange={e => setCat(e.target.value)}>
+                {[...state.categories].sort((a, b) => a.localeCompare(b)).map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            )}
           </div>
         </div>
 

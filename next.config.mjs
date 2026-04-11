@@ -1,3 +1,5 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  transpilePackages: ['react-grid-layout', 'react-resizable'],
+};
 export default nextConfig;

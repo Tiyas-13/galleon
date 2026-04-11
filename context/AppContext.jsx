@@ -13,14 +13,22 @@ export const DEFAULT_CATEGORIES = [
   'Entertainment','Travel','Education','Salary','Freelance','Savings','Other',
 ];
 
+export const DEFAULT_WIDGETS = [
+  { i: 'income-vs-expenses',   type: 'incomeVsExpenses',   x: 0, y: 0,  w: 6, h: 5 },
+  { i: 'expenses-by-category', type: 'expensesByCategory', x: 6, y: 0,  w: 6, h: 8 },
+  { i: 'budget-overview',      type: 'budgetOverview',     x: 0, y: 5,  w: 6, h: 8 },
+  { i: 'account-balances',     type: 'accountBalances',    x: 6, y: 8,  w: 6, h: 5 },
+];
+
 const DEFAULT_STATE = {
   accounts: [], transactions: [], budgetGroups: [],
   categories: [...DEFAULT_CATEGORIES],
-  currency: '£', vaultNumber: '', setupDone: false, loaded: false,
+  currency: '£', vaultNumber: '', widgets: DEFAULT_WIDGETS,
+  setupDone: false, loaded: false,
 };
 
 const DEMO_STATE = {
-  currency: '£', setupDone: true, loaded: true,
+  currency: '£', setupDone: true, loaded: true, widgets: DEFAULT_WIDGETS,
   categories: [...DEFAULT_CATEGORIES],
   accounts: [
     { id: 'a1', name: 'Barclays Current', type: 'checking',  balance: 2430.50 },
@@ -75,6 +83,7 @@ export function AppProvider({ uid, demo = false, children }) {
         categories:   s.categories   ?? [...DEFAULT_CATEGORIES],
         currency:     s.currency     ?? '£',
         vaultNumber:  s.vaultNumber  ?? '',
+        widgets:      s.widgets      ?? DEFAULT_WIDGETS,
         setupDone:    s.setupDone    ?? false,
         budgetGroups: s.budgetGroups ?? [],
         transactions,
@@ -111,6 +120,7 @@ export function AppProvider({ uid, demo = false, children }) {
       categories:   next.categories,
       currency:     next.currency,
       vaultNumber:  next.vaultNumber,
+      widgets:      next.widgets,
       setupDone:    next.setupDone,
       budgetGroups: next.budgetGroups,
     });

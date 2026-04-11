@@ -13,7 +13,10 @@ const cinzel = Cinzel({
   variable: '--font-cinzel',
 });
 
-export const metadata = { title: 'Galleon' };
+export const metadata = {
+  title: 'Galleon',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
+};
 
 export default function RootLayout({ children }) {
   return (
