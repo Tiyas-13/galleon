@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useApp } from '@/context/AppContext';
 import { checkRateLimit, getIdToken, buildSummary } from '@/lib/ai';
 import AddTransactionModal from './AddTransactionModal';
@@ -11,10 +11,15 @@ export default function AiPanel() {
   const [input,     setInput]     = useState('');
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState('');
-  const [parsedTxn, setParsedTxn] = useState(null); // pre-filled transaction to confirm
-  const [answer,    setAnswer]    = useState('');
+  const [parsedTxn, setParsedTxn] = useState(null);
   const [messages,  setMessages]  = useState([]); // query chat history
-  const inputRef = useRef(null);
+  const inputRef   = useRef(null);
+  const messagesEndRef = useRef(null);
+
+  // Auto-scroll chat to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, loading]);
 
   async function callApi(type, text) {
     setError('');
@@ -27,9 +32,17 @@ export default function AiPanel() {
       if (!allowed) throw new Error("Daily AI limit reached (30/day). Try again tomorrow.");
 
       const idToken = await getIdToken();
-      const context = type === 'parse'
-        ? { categories: state.categories, accounts: state.accounts }
-        : { summary: buildSummary(state) };
+
+      let context;
+      if (type === 'parse') {
+        context = { categories: state.categories, accounts: state.accounts };
+      } else {
+        // query and analyse both get summary + personalContext
+        context = {
+          summary: buildSummary(state),
+          personalContext: state.personalContext ?? '',
+        };
+      }
 
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -62,9 +75,23 @@ export default function AiPanel() {
     if (result) setMessages(m => [...m, { role: 'assistant', text: result }]);
   }
 
+  async function handleAnalyse() {
+    setMessages(m => [...m, { role: 'user', text: '✦ Analyse my vault' }]);
+    const result = await callApi('analyse', 'vault briefing').catch(e => { setError(e.message); return null; });
+    if (result) setMessages(m => [...m, { role: 'assistant', text: result }]);
+  }
+
   function handleSubmit() {
     if (tab === 'parse') handleParse();
     else handleQuery();
+  }
+
+  function switchTab(t) {
+    setTab(t);
+    setError('');
+    if (t === 'parse') setMessages([]);
+    if (t === 'query') setParsedTxn(null);
+    setTimeout(() => inputRef.current?.focus(), 80);
   }
 
   return (
@@ -80,8 +107,8 @@ export default function AiPanel() {
           <div className="ai-panel-header">
             <div className="ai-panel-title">✦ Galleon Assistant</div>
             <div className="ai-tabs">
-              <button className={`ai-tab${tab === 'parse' ? ' active' : ''}`} onClick={() => { setTab('parse'); setAnswer(''); }}>Add transaction</button>
-              <button className={`ai-tab${tab === 'query' ? ' active' : ''}`} onClick={() => { setTab('query'); setParsedTxn(null); }}>Ask</button>
+              <button className={`ai-tab${tab === 'parse' ? ' active' : ''}`} onClick={() => switchTab('parse')}>Add transaction</button>
+              <button className={`ai-tab${tab === 'query' ? ' active' : ''}`} onClick={() => switchTab('query')}>Ask</button>
             </div>
             <button className="ai-close" onClick={() => setOpen(false)}>&times;</button>
           </div>
@@ -89,22 +116,45 @@ export default function AiPanel() {
           <div className="ai-panel-body">
             {tab === 'parse' ? (
               <div className="ai-parse-hint">
-                Describe a transaction in plain English — e.g. <em>"spent $45 on groceries at Trader Joe's today from Chase"</em>
+                Describe a transaction in plain English — e.g. <em>"spent £45 on groceries at Tesco today from Barclays"</em>
               </div>
             ) : (
               <div className="ai-messages">
                 {messages.length === 0 && (
-                  <div className="ai-parse-hint">Ask anything about your finances — e.g. <em>"How much have I spent on food this month?"</em></div>
+                  <>
+                    <div className="ai-parse-hint">Ask anything about your finances — e.g. <em>"How much did I spend on food this month?"</em></div>
+                    <button
+                      className="ai-analyse-btn"
+                      onClick={handleAnalyse}
+                      disabled={loading}
+                    >
+                      ✦ Analyse my vault
+                    </button>
+                  </>
                 )}
                 {messages.map((m, i) => (
                   <div key={i} className={`ai-message ${m.role}`}>{m.text}</div>
                 ))}
                 {loading && <div className="ai-message assistant ai-thinking">Thinking…</div>}
+                <div ref={messagesEndRef} />
               </div>
             )}
 
             {error && <div className="ai-error">{error}</div>}
           </div>
+
+          {tab === 'query' && messages.length > 0 && (
+            <div style={{ padding: '0 16px 4px', display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                className="ai-analyse-btn"
+                onClick={handleAnalyse}
+                disabled={loading}
+                style={{ fontSize: 11, padding: '4px 10px' }}
+              >
+                ✦ Analyse my vault
+              </button>
+            </div>
+          )}
 
           <div className="ai-panel-footer">
             <textarea
@@ -113,7 +163,7 @@ export default function AiPanel() {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
-              placeholder={tab === 'parse' ? 'e.g. paid $12 for coffee yesterday…' : 'Ask about your finances…'}
+              placeholder={tab === 'parse' ? 'e.g. paid £12 for coffee yesterday…' : 'Ask about your finances…'}
               rows={2}
               disabled={loading}
             />

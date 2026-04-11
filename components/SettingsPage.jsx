@@ -7,10 +7,11 @@ import AddAccountModal from './AddAccountModal';
 
 export default function SettingsPage() {
   const { state, saveSettings, resetAll } = useApp();
-  const [newCat,      setNewCat]      = useState('');
-  const [currency,    setCurrency]    = useState(state.currency);
-  const [vaultNumber, setVaultNumber] = useState(state.vaultNumber ?? '');
-  const [showModal,   setShowModal]   = useState(false);
+  const [newCat,          setNewCat]          = useState('');
+  const [currency,        setCurrency]        = useState(state.currency);
+  const [vaultNumber,     setVaultNumber]     = useState(state.vaultNumber ?? '');
+  const [personalContext, setPersonalContext] = useState(state.personalContext ?? '');
+  const [showModal,       setShowModal]       = useState(false);
 
   async function addCategory() {
     const val = newCat.trim();
@@ -29,6 +30,10 @@ export default function SettingsPage() {
 
   async function saveVaultNumber() {
     await saveSettings({ vaultNumber: vaultNumber.trim() });
+  }
+
+  async function savePersonalContext() {
+    await saveSettings({ personalContext: personalContext.trim() });
   }
 
   async function deleteAccount(id) {
@@ -85,6 +90,21 @@ export default function SettingsPage() {
           />
           <button className="btn" onClick={saveVaultNumber}>Save</button>
         </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title">About you — AI context</div>
+        <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10 }}>
+          Tell the AI assistant about your life so it can give smarter, personalised advice. E.g. your income situation, free perks, saving goals, lifestyle habits.
+        </p>
+        <textarea
+          value={personalContext}
+          onChange={e => setPersonalContext(e.target.value)}
+          placeholder="e.g. My office provides free breakfast and lunch on weekdays. I earn $120k/year. I'm saving for a Japan trip in August. I try to limit Ubers to weekends only."
+          rows={4}
+          style={{ width: '100%', padding: '9px 12px', borderRadius: 'var(--radius-md)', border: '0.5px solid var(--border-md)', fontFamily: 'var(--font)', fontSize: 14, background: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'vertical', marginBottom: 8 }}
+        />
+        <button className="btn" onClick={savePersonalContext}>Save</button>
       </div>
 
       <div className="card">

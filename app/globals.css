@@ -705,6 +705,25 @@ body {
 }
 .ai-thinking { opacity: 0.6; font-style: italic; }
 
+.ai-analyse-btn {
+  display: block;
+  margin: 12px auto 4px;
+  padding: 8px 18px;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  color: #3D1C0A;
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: opacity 0.15s, transform 0.1s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+.ai-analyse-btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+.ai-analyse-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
 .ai-error {
   font-size: 12px; color: var(--crimson);
   background: rgba(139,26,40,0.08); border: 1px solid rgba(139,26,40,0.2);

@@ -10,8 +10,9 @@ function emptyAccount() {
 
 export default function SetupWizard() {
   const { saveSettings } = useApp();
-  const [accounts, setAccounts] = useState([emptyAccount()]);
-  const [currency, setCurrency] = useState('$');
+  const [accounts,        setAccounts]        = useState([emptyAccount()]);
+  const [currency,        setCurrency]        = useState('£');
+  const [personalContext, setPersonalContext] = useState('');
 
   function addAccount() {
     setAccounts(prev => [...prev, emptyAccount()]);
@@ -36,9 +37,10 @@ export default function SetupWizard() {
       }));
 
     await saveSettings({
-      accounts:  validAccounts,
-      currency:  currency || '$',
-      setupDone: true,
+      accounts:       validAccounts,
+      currency:       currency || '£',
+      personalContext: personalContext.trim(),
+      setupDone:      true,
     });
   }
 
@@ -90,6 +92,20 @@ export default function SetupWizard() {
             value={currency}
             onChange={e => setCurrency(e.target.value)}
             maxLength={3}
+          />
+        </div>
+
+        <div className="form-group" style={{ marginBottom: 24 }}>
+          <label>About you — AI context <span style={{ fontWeight: 400, color: 'var(--text-secondary)', fontSize: 12 }}>(optional)</span></label>
+          <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '2px 0 8px' }}>
+            Tell the AI assistant about your life so it can give smarter, personalised advice. You can always update this in Settings later.
+          </p>
+          <textarea
+            value={personalContext}
+            onChange={e => setPersonalContext(e.target.value)}
+            placeholder="e.g. I earn £45k/year. My office provides free lunch on weekdays. I'm saving for a house deposit by end of next year."
+            rows={3}
+            style={{ width: '100%', padding: '9px 12px', borderRadius: 'var(--radius-md)', border: '0.5px solid var(--border-md)', fontFamily: 'var(--font)', fontSize: 14, background: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'vertical', boxSizing: 'border-box' }}
           />
         </div>
 

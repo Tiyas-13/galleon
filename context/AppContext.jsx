@@ -23,7 +23,7 @@ export const DEFAULT_WIDGETS = [
 const DEFAULT_STATE = {
   accounts: [], transactions: [], budgetGroups: [],
   categories: [...DEFAULT_CATEGORIES],
-  currency: '£', vaultNumber: '', widgets: DEFAULT_WIDGETS,
+  currency: '£', vaultNumber: '', personalContext: '', widgets: DEFAULT_WIDGETS,
   setupDone: false, loaded: false,
 };
 
@@ -82,7 +82,8 @@ export function AppProvider({ uid, demo = false, children }) {
         accounts:     s.accounts     ?? [],
         categories:   s.categories   ?? [...DEFAULT_CATEGORIES],
         currency:     s.currency     ?? '£',
-        vaultNumber:  s.vaultNumber  ?? '',
+        vaultNumber:      s.vaultNumber      ?? '',
+        personalContext:  s.personalContext  ?? '',
         widgets:      s.widgets      ?? DEFAULT_WIDGETS,
         setupDone:    s.setupDone    ?? false,
         budgetGroups: s.budgetGroups ?? [],
@@ -119,7 +120,8 @@ export function AppProvider({ uid, demo = false, children }) {
       accounts:     next.accounts,
       categories:   next.categories,
       currency:     next.currency,
-      vaultNumber:  next.vaultNumber,
+      vaultNumber:      next.vaultNumber,
+      personalContext:  next.personalContext,
       widgets:      next.widgets,
       setupDone:    next.setupDone,
       budgetGroups: next.budgetGroups,

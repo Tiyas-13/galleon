@@ -35,10 +35,26 @@ Rules:
 Return ONLY this JSON shape, nothing else:
 {"type":"expense","desc":"","amount":0,"date":"","cat":null,"from":null,"to":null,"notes":""}`;
 
-const QUERY_SYSTEM = `You are a personal finance assistant for Galleon, a finance tracking app.
+const QUERY_SYSTEM = `You are a friendly personal finance assistant for Galleon, a finance tracking app.
 Answer questions about the user's finances concisely (2-4 sentences max).
 Be specific with numbers. Use the currency symbol provided.
-Only use the data provided — don't make up figures.`;
+Only use the data provided — don't make up figures.
+{PERSONAL_CONTEXT}`;
+
+const ANALYSE_SYSTEM = `You are a warm, balanced personal finance advisor for Galleon.
+Your job is to give the user a thoughtful monthly vault briefing — like a trusted friend who happens to be great with money.
+
+Guidelines:
+- Start with a genuine positive observation. Find something they're genuinely doing well.
+- Be specific with numbers — reference actual figures from the data.
+- Point out 1-2 areas to watch, but frame them constructively ("you might want to keep an eye on X" not "you're overspending").
+- Consider the personal context the user has shared — factor in their lifestyle, goals, and circumstances when giving advice.
+- If they're ahead of their savings goal, celebrate it. If they're behind, be encouraging not alarming.
+- Compare month-over-month trends where relevant.
+- End with one concrete, actionable suggestion.
+- Keep it conversational, warm, and under 200 words. No bullet points — write in flowing paragraphs.
+- Use the currency symbol provided.
+{PERSONAL_CONTEXT}`;
 
 export async function POST(request) {
   try {
@@ -78,13 +94,33 @@ Transaction: "${text}"`;
       return Response.json({ result: parsed });
 
     } else if (type === 'query') {
-      const { summary } = context ?? {};
+      const { summary, personalContext } = context ?? {};
+      const ctxNote = personalContext
+        ? `\n\nAbout this user: ${personalContext}`
+        : '';
+      const system = QUERY_SYSTEM.replace('{PERSONAL_CONTEXT}', ctxNote);
 
       const msg = await client.messages.create({
         model: 'claude-haiku-4-5',
         max_tokens: 512,
-        system: QUERY_SYSTEM,
+        system,
         messages: [{ role: 'user', content: `Financial data:\n${summary}\n\nQuestion: ${text}` }],
+      });
+
+      return Response.json({ result: msg.content[0]?.text?.trim() });
+
+    } else if (type === 'analyse') {
+      const { summary, personalContext } = context ?? {};
+      const ctxNote = personalContext
+        ? `\n\nAbout this user (factor this into your advice): ${personalContext}`
+        : '';
+      const system = ANALYSE_SYSTEM.replace('{PERSONAL_CONTEXT}', ctxNote);
+
+      const msg = await client.messages.create({
+        model: 'claude-haiku-4-5',
+        max_tokens: 1024,
+        system,
+        messages: [{ role: 'user', content: `Here is my complete financial data:\n\n${summary}\n\nPlease give me my vault briefing.` }],
       });
 
       return Response.json({ result: msg.content[0]?.text?.trim() });
