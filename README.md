@@ -1,8 +1,8 @@
 # Galleon
 
-A personal finance tracker with a Gryffindor soul. Track transactions, manage budgets, and get AI-powered insights — with floating embers and all.
+A personal finance tracker with a Gryffindor soul. Track transactions, manage budgets, get AI-powered insights, and receive weekly owl post — with floating embers and all.
 
-Built with Next.js, Firebase, and Claude. Entirely vibe coded - the real magic?
+Built with Next.js, Firebase, and Claude. Entirely vibe coded.
 
 [https://galleon-three.vercel.app/](https://galleon-three.vercel.app/)
 
@@ -13,7 +13,7 @@ Built with Next.js, Firebase, and Claude. Entirely vibe coded - the real magic?
 - **Split expenses** — paid for the group? Split by amount or equally (1/N), log only your share, and route the rest to a splits account. When someone pays you back, just transfer it back
 - **Accounts** — track balances across checking, savings, cash, credit cards. Balances update automatically as you add transactions, and you can edit them inline at any time
 - **Budget groups** — group categories under a monthly target. Progress bars, overspend alerts, and smart spend tracking that handles savings transfers and reversals correctly
-- **Overview** — drag-and-drop widget grid. Add, remove, resize, and rearrange charts to build a dashboard that suits you. Layouts persist across sessions
+- **Overview** — drag-and-drop widget grid. Add, remove, resize, and rearrange charts to build a dashboard that suits you. Layouts persist across sessions and never get corrupted by mobile views
 - **Home** — vault summary, net worth, this month's snapshot, and rotating quotes that aren't all Harry Potter
 
 ### AI (✦ Assistant)
@@ -22,6 +22,23 @@ Built with Next.js, Firebase, and Claude. Entirely vibe coded - the real magic?
 - **Vault analyser** — one tap for a full financial briefing. Balanced, specific, and aware of your personal context. Not just "you overspent" — actually useful
 - **Personal context** — tell the AI about your life once (income, goals, perks, habits) and it factors it in across every response
 - **Budget nudges** — after saving an expense, a notification drops in if you've crossed 75% of a budget group or gone over. Stays quiet when there's nothing worth saying
+- **Server-side API key** — your Anthropic key never touches the client. Per-user rate limiting (30 calls/day) enforced in Firestore
+
+### 🦉 Owl Post
+- **Weekly reports** — every week, a new letter arrives automatically when you open the Owl Post page
+- **Owl vs Howler** — the AI reads your finances and decides. On track? A warm parchment owl from Gringotts. Over budget or spending more than you earn? A dramatic red Howler
+- **Written in character** — owls are proper wizarding correspondence, Howlers are Mrs Weasley-level alarming but actually helpful
+- **Persistent history** — all letters stored in Firestore, up to a year's worth. Request one any time with the button
+
+### Theming
+- **Choose your house** — Gryffindor, Slytherin, Ravenclaw, or Hufflepuff. The entire app recolours instantly — backgrounds, nav, buttons, modals, charts, everything
+- Picks up from Settings and persists across sessions
+
+### UX details
+- Google Sign-in, sign out from the nav at any time
+- Setup wizard on first login — accounts, currency, and personal context in one go
+- Full mobile support — bottom-sheet modals, scrollable nav, 16px inputs (no iOS zoom)
+- Demo mode — try everything without an account
 
 ## Stack
 
