@@ -4,7 +4,7 @@ A personal finance tracker with a Gryffindor soul. Track transactions, manage bu
 
 Built with Next.js, Firebase, and Claude. Entirely vibe coded - the real magic?
 
-https://galleon-three.vercel.app/
+[https://galleon-three.vercel.app/](https://galleon-three.vercel.app/)
 
 ## Features
 
