@@ -4,7 +4,7 @@ A personal finance tracker with a Gryffindor soul. Track transactions, manage bu
 
 Built with Next.js, Firebase, and a touch of magic.
 
-**Entirely vibe coded - the real magic**
+**Entirely vibe coded - the real magic?**
 
 ## Features
 
