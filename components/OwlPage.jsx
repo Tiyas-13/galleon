@@ -107,6 +107,21 @@ export default function OwlPage() {
     generate(reports, user.uid);
   }
 
+  // ── Delete a letter ────────────────────────────────────────────────────────
+  async function deleteReport(e, id) {
+    e.stopPropagation();
+    const updated = reports.filter(r => r.id !== id);
+    setReports(updated);
+    if (expanded === id) setExpanded(null);
+    try {
+      const firebase = await import('@/lib/firebase');
+      const user = firebase.auth.currentUser;
+      if (!user) return;
+      const ref = doc(db, 'users', user.uid, 'data', 'owlHistory');
+      await setDoc(ref, { reports: updated });
+    } catch { /* non-fatal */ }
+  }
+
   const isLoading = !state.loaded || reports === null;
 
   return (
@@ -170,6 +185,11 @@ export default function OwlPage() {
                 {isHowler ? 'Howler' : 'Owl Post'}
               </div>
               <div className="owl-letter-chevron">{isOpen ? '▲' : '▼'}</div>
+              <button
+                className="owl-letter-delete"
+                onClick={e => deleteReport(e, r.id)}
+                title="Delete letter"
+              >&times;</button>
             </div>
 
             {isOpen && (

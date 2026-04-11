@@ -646,7 +646,46 @@ body {
 .budget-fill { height: 100%; background: var(--gold-mid); transition: width 0.5s ease; border-radius: 99px 0 0 99px; }
 .budget-fill:only-child { border-radius: 99px; }
 .budget-fill.over { background: var(--crimson); }
+.budget-fill.savings { background: var(--savings-green); }
 .budget-overflow { height: 100%; background: var(--crimson-light); opacity: 0.7; transition: width 0.5s ease; }
+
+/* Savings group */
+:root { --savings-green: #2ecc71; }
+.savings-group { border-color: rgba(46, 204, 113, 0.25); }
+.savings-group:hover { border-color: rgba(46, 204, 113, 0.45); }
+.savings-badge {
+  display: inline-block; margin-left: 8px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--savings-green); background: rgba(46, 204, 113, 0.12);
+  padding: 2px 7px; border-radius: 99px; vertical-align: middle;
+}
+.budget-group-amount.hit-goal { color: var(--savings-green); }
+
+/* Savings toggle */
+.savings-toggle {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px; border-radius: 10px; margin-bottom: 14px;
+  background: var(--bg-input); border: 1px solid var(--border);
+  cursor: pointer; transition: border-color 0.2s;
+}
+.savings-toggle:hover { border-color: rgba(var(--accent-rgb), 0.4); }
+.savings-toggle.active { border-color: rgba(46, 204, 113, 0.5); background: rgba(46, 204, 113, 0.06); }
+.savings-toggle-track {
+  width: 32px; height: 18px; border-radius: 99px; flex-shrink: 0; margin-top: 1px;
+  background: var(--border); border: 1px solid rgba(255,255,255,0.06);
+  position: relative; transition: background 0.2s;
+}
+.savings-toggle.active .savings-toggle-track { background: var(--savings-green); }
+.savings-toggle-thumb {
+  position: absolute; top: 2px; left: 2px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+.savings-toggle.active .savings-toggle-thumb { transform: translateX(14px); }
+.savings-toggle-label { font-size: 12px; font-weight: 600; color: var(--text-primary); }
+.savings-toggle.active .savings-toggle-label { color: var(--savings-green); }
+.savings-toggle-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; line-height: 1.4; }
 .budget-inline-form { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
 .budget-cat-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
 .budget-cat-check {
@@ -976,6 +1015,16 @@ body {
   font-size: 10px; color: var(--text-secondary); flex-shrink: 0;
 }
 .owl-letter--howler .owl-letter-chevron { color: rgba(255, 200, 200, 0.5); }
+
+.owl-letter-delete {
+  background: none; border: none; cursor: pointer;
+  font-size: 16px; line-height: 1; padding: 2px 4px;
+  color: var(--text-secondary); opacity: 0.35;
+  border-radius: 4px; transition: all 0.15s; flex-shrink: 0;
+}
+.owl-letter-delete:hover { opacity: 1; color: var(--primary); background: rgba(var(--primary-rgb), 0.08); }
+.owl-letter--howler .owl-letter-delete { color: rgba(255, 200, 200, 0.5); }
+.owl-letter--howler .owl-letter-delete:hover { opacity: 1; color: #FF9090; background: rgba(255, 80, 80, 0.15); }
 
 .owl-letter-body {
   padding: 0 20px 20px 56px;

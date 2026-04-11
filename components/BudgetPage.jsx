@@ -30,7 +30,7 @@ function monthLabel() {
 }
 
 function emptyGroup() {
-  return { name: '', target: '', categoryIds: [] };
+  return { name: '', target: '', categoryIds: [], isSavings: false };
 }
 
 export default function BudgetPage() {
@@ -58,7 +58,7 @@ export default function BudgetPage() {
       alert('Please enter a name and a target amount.');
       return;
     }
-    const newGroup = { id: 'bg' + Date.now(), name, target, categoryIds: draft.categoryIds };
+    const newGroup = { id: 'bg' + Date.now(), name, target, categoryIds: draft.categoryIds, isSavings: draft.isSavings ?? false };
     await saveSettings({ budgetGroups: [...state.budgetGroups, newGroup] });
     setAdding(false);
   }
@@ -67,7 +67,7 @@ export default function BudgetPage() {
   function startEditing(group) {
     if (expandedId === group.id) { setExpandedId(null); return; }
     setExpandedId(group.id);
-    setEditDraft({ name: group.name, target: String(group.target), categoryIds: [...group.categoryIds] });
+    setEditDraft({ name: group.name, target: String(group.target), categoryIds: [...group.categoryIds], isSavings: group.isSavings ?? false });
     setAdding(false);
   }
 
@@ -80,7 +80,7 @@ export default function BudgetPage() {
     }
     await saveSettings({
       budgetGroups: state.budgetGroups.map(g =>
-        g.id === id ? { ...g, name, target, categoryIds: editDraft.categoryIds } : g
+        g.id === id ? { ...g, name, target, categoryIds: editDraft.categoryIds, isSavings: editDraft.isSavings ?? false } : g
       ),
     });
     setExpandedId(null);
@@ -148,8 +148,11 @@ export default function BudgetPage() {
 
       {/* ── Budget group rows ── */}
       {groups.map(group => {
-        const pct       = group.target > 0 ? (group.spent / group.target) * 100 : group.spent > 0 ? 100 : 0;
-        const overBudget = group.spent > group.target;
+        const pct        = group.target > 0 ? (group.spent / group.target) * 100 : group.spent > 0 ? 100 : 0;
+        const isSavings  = group.isSavings ?? false;
+        // For savings: "over" is good (hit goal). For spending: "over" is bad.
+        const overBudget = !isSavings && group.spent > group.target;
+        const hitGoal    = isSavings && group.spent >= group.target;
         const normalPct  = Math.min(pct, 100);
         const overflowPct = overBudget ? Math.min(((group.spent - group.target) / group.target) * 100, 100) : 0;
         const isExpanded = expandedId === group.id;
@@ -157,22 +160,32 @@ export default function BudgetPage() {
         return (
           <div
             key={group.id}
-            className={`budget-group${overBudget ? ' over-budget' : ''}`}
+            className={`budget-group${overBudget ? ' over-budget' : ''}${isSavings ? ' savings-group' : ''}`}
             onClick={() => !isExpanded && startEditing(group)}
           >
             <div className="budget-group-header">
-              <div className="budget-group-name">{group.name}</div>
-              <div className={`budget-group-amount${overBudget ? ' over' : ''}`}>
-                {overBudget
-                  ? <>{fmt(group.spent)} <span style={{ color: 'var(--crimson)', fontWeight: 700 }}>({fmt(group.spent - group.target)} over)</span></>
-                  : <>{fmt(group.spent)} <span style={{ color: 'var(--text-secondary)' }}>/ {fmt(group.target)}</span></>
+              <div className="budget-group-name">
+                {group.name}
+                {isSavings && <span className="savings-badge">savings</span>}
+              </div>
+              <div className={`budget-group-amount${overBudget ? ' over' : ''}${hitGoal ? ' hit-goal' : ''}`}>
+                {isSavings
+                  ? hitGoal
+                    ? <>{fmt(group.spent)} <span style={{ color: 'var(--savings-green)', fontWeight: 700 }}>✓ goal hit!</span></>
+                    : <>{fmt(group.spent)} <span style={{ color: 'var(--text-secondary)' }}>/ {fmt(group.target)} goal</span></>
+                  : overBudget
+                    ? <>{fmt(group.spent)} <span style={{ color: 'var(--crimson)', fontWeight: 700 }}>({fmt(group.spent - group.target)} over)</span></>
+                    : <>{fmt(group.spent)} <span style={{ color: 'var(--text-secondary)' }}>/ {fmt(group.target)}</span></>
                 }
               </div>
             </div>
 
             {/* Progress bar */}
             <div className="budget-track">
-              <div className={`budget-fill${overBudget ? ' over' : ''}`} style={{ width: `${normalPct}%` }} />
+              <div
+                className={`budget-fill${overBudget ? ' over' : ''}${isSavings ? ' savings' : ''}`}
+                style={{ width: `${normalPct}%` }}
+              />
               {overBudget && <div className="budget-overflow" style={{ width: `${overflowPct}%` }} />}
             </div>
 
@@ -224,7 +237,7 @@ function GroupForm({ draft, categories, onChange, onToggleCat }) {
           />
         </div>
         <div className="form-group">
-          <label>Monthly target</label>
+          <label>{draft.isSavings ? 'Monthly savings goal' : 'Monthly target'}</label>
           <input
             type="number"
             value={draft.target}
@@ -237,7 +250,25 @@ function GroupForm({ draft, categories, onChange, onToggleCat }) {
         </div>
       </div>
 
-      <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: 8 }}>
+      {/* Savings toggle */}
+      <div
+        className={`savings-toggle${draft.isSavings ? ' active' : ''}`}
+        onClick={e => { e.stopPropagation(); onChange(prev => ({ ...prev, isSavings: !prev.isSavings })); }}
+      >
+        <div className="savings-toggle-track">
+          <div className="savings-toggle-thumb" />
+        </div>
+        <div>
+          <div className="savings-toggle-label">Savings group</div>
+          <div className="savings-toggle-sub">
+            {draft.isSavings
+              ? 'Progress bar shows how close you are to your savings goal — exceeding it is a win'
+              : 'Turn on if this tracks savings or investments rather than spending'}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: 8, marginTop: 4 }}>
         Categories
       </div>
       <div className="budget-cat-list">
