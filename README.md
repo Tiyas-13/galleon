@@ -4,12 +4,14 @@ A personal finance tracker with a Gryffindor soul. Track transactions, manage bu
 
 Built with Next.js, Firebase, and a touch of magic.
 
+**Entirely vibe coded - the real magic**
+
 ## Features
 
 - **Transactions** — log income, expenses, and transfers across accounts
-- **Overview** — charts and summaries of your spending
+- **Overview** — charts and summaries of your spending - widget based
 - **Budget** — set monthly budget groups by category with progress bars
-- **Accounts** — manage bank accounts, savings, cash, and credit cards
+- **Accounts** — view bank accounts, savings, cash, and credit cards (no connections needed)
 - **Home page** — vault summary, rotating quotes, and a floating crest
 - **Demo mode** — preview the app without signing in
 
