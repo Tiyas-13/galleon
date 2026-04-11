@@ -16,6 +16,7 @@ export default function AddTransactionModal({ onClose, initialData }) {
   const [from,       setFrom]       = useState(initialData?.from  ?? state.accounts[0]?.id ?? '');
   const [to,         setTo]         = useState(initialData?.to    ?? state.accounts[1]?.id ?? state.accounts[0]?.id ?? '');
   const [notes,      setNotes]      = useState(initialData?.notes ?? '');
+  const [reversal,   setReversal]   = useState(initialData?.reversal ?? false);
 
   // Split fields (only relevant when type === 'expense')
   const [isSplit,    setIsSplit]    = useState(false);
@@ -62,11 +63,13 @@ export default function AddTransactionModal({ onClose, initialData }) {
       await updateTransaction(initialData.id, {
         type, desc: desc.trim(), amount: amt, date, notes: notes.trim(),
         cat, from, to: isTransfer ? to : null,
+        reversal: isTransfer ? reversal : false,
       });
     } else {
       await addTransaction({
         type, desc: desc.trim(), amount: amt, date, notes: notes.trim(),
         cat, from, to: isTransfer ? to : null,
+        reversal: isTransfer ? reversal : false,
       });
     }
     onClose();
@@ -182,6 +185,13 @@ export default function AddTransactionModal({ onClose, initialData }) {
             </div>
           )}
         </div>
+
+        {isTransfer && cat && (
+          <label className="split-toggle-row">
+            <input type="checkbox" checked={reversal} onChange={e => setReversal(e.target.checked)} />
+            This reverses a previous entry (e.g. withdrawing from savings)
+          </label>
+        )}
 
         <div className="form-row full">
           <div className="form-group">
