@@ -153,7 +153,7 @@ export default function AddTransactionModal({ onClose, initialData }) {
           <div className="form-group">
             <label>Category</label>
             <select value={cat} onChange={e => setCat(e.target.value)}>
-              {state.categories.map(c => <option key={c} value={c}>{c}</option>)}
+              {[...state.categories].sort((a, b) => a.localeCompare(b)).map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
         </div>

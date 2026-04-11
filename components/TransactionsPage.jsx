@@ -12,6 +12,13 @@ export default function TransactionsPage() {
   const [filterCat,  setFilterCat]  = useState('');
   const [filterAcct, setFilterAcct] = useState('');
 
+  function setFilter(fn) {
+    fn();
+    setPage(1);
+  }
+  const [page,       setPage]       = useState(1);
+  const PAGE_SIZE = 20;
+
   const acctMap = Object.fromEntries(state.accounts.map(a => [a.id, a.name]));
 
   let txns = [...state.transactions].sort((a, b) =>
@@ -20,6 +27,10 @@ export default function TransactionsPage() {
   if (filterType) txns = txns.filter(t => t.type === filterType);
   if (filterCat)  txns = txns.filter(t => t.cat === filterCat);
   if (filterAcct) txns = txns.filter(t => t.from === filterAcct || t.to === filterAcct);
+
+  const totalCount = txns.length;
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const paged = txns.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   async function handleDelete(id) {
     if (!confirm('Delete this transaction?')) return;
@@ -34,27 +45,27 @@ export default function TransactionsPage() {
       </div>
 
       <div className="filter-row">
-        <select value={filterType} onChange={e => setFilterType(e.target.value)}>
+        <select value={filterType} onChange={e => setFilter(() => setFilterType(e.target.value))}>
           <option value="">All types</option>
           <option value="expense">Expense</option>
           <option value="income">Income</option>
           <option value="transfer">Transfer</option>
         </select>
-        <select value={filterCat} onChange={e => setFilterCat(e.target.value)}>
+        <select value={filterCat} onChange={e => setFilter(() => setFilterCat(e.target.value))}>
           <option value="">All categories</option>
-          {state.categories.map(c => <option key={c} value={c}>{c}</option>)}
+          {[...state.categories].sort((a,b) => a.localeCompare(b)).map(c => <option key={c} value={c}>{c}</option>)}
         </select>
-        <select value={filterAcct} onChange={e => setFilterAcct(e.target.value)}>
+        <select value={filterAcct} onChange={e => setFilter(() => setFilterAcct(e.target.value))}>
           <option value="">All accounts</option>
           {state.accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
         </select>
       </div>
 
       <div className="txn-list">
-        {txns.length === 0 ? (
+        {totalCount === 0 ? (
           <div className="empty-state">No transactions yet.</div>
         ) : (
-          txns.map(t => (
+          paged.map(t => (
             <TransactionItem
               key={t.id}
               txn={t}
@@ -66,6 +77,14 @@ export default function TransactionsPage() {
           ))
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="pagination">
+          <button className="btn sm" onClick={() => setPage(p => p - 1)} disabled={page === 1}>← Prev</button>
+          <span className="pagination-info">{page} / {totalPages} &nbsp;·&nbsp; {totalCount} transactions</span>
+          <button className="btn sm" onClick={() => setPage(p => p + 1)} disabled={page === totalPages}>Next →</button>
+        </div>
+      )}
 
       {showModal && <AddTransactionModal onClose={() => setShowModal(false)} />}
       {editTxn   && <AddTransactionModal initialData={editTxn} onClose={() => setEditTxn(null)} />}

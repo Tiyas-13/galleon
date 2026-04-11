@@ -262,6 +262,11 @@ body {
 
 /* ── Transactions ─────────────────────────────────────────────────────────── */
 .txn-list { display: flex; flex-direction: column; gap: 5px; }
+.pagination {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  padding: 20px 0 4px;
+}
+.pagination-info { font-size: 13px; color: var(--text-secondary); }
 .txn-item {
   display: flex; align-items: center; gap: 12px;
   padding: 12px 16px;
