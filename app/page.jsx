@@ -14,6 +14,7 @@ import AccountsPage from '@/components/AccountsPage';
 import SettingsPage from '@/components/SettingsPage';
 import HomePage from '@/components/HomePage';
 import AiPanel from '@/components/AiPanel';
+import AiPage  from '@/components/AiPage';
 
 export default function Home() {
   const [authUser, setAuthUser] = useState(undefined);
@@ -43,6 +44,7 @@ const PAGES = {
   overview:     OverviewPage,
   budget:       BudgetPage,
   accounts:     AccountsPage,
+  assistant:    AiPage,
   settings:     SettingsPage,
 };
 

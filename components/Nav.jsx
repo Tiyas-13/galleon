@@ -2,7 +2,14 @@
 import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
-const PAGES = ['transactions', 'overview', 'budget', 'accounts', 'settings'];
+const PAGES = [
+  { id: 'transactions', label: 'Transactions' },
+  { id: 'overview',     label: 'Overview'     },
+  { id: 'budget',       label: 'Budget'       },
+  { id: 'accounts',     label: 'Accounts'     },
+  { id: 'assistant',    label: '✦ Assistant'  },
+  { id: 'settings',     label: 'Settings'     },
+];
 
 export default function Nav({ activePage, setActivePage }) {
   return (
@@ -10,13 +17,13 @@ export default function Nav({ activePage, setActivePage }) {
       <button className="nav-logo-btn" onClick={() => setActivePage('home')}>
         <span className="nav-logo">Galleon</span>
       </button>
-      {PAGES.map(page => (
+      {PAGES.map(({ id, label }) => (
         <button
-          key={page}
-          className={`nav-btn${activePage === page ? ' active' : ''}`}
-          onClick={() => setActivePage(page)}
+          key={id}
+          className={`nav-btn${activePage === id ? ' active' : ''}`}
+          onClick={() => setActivePage(id)}
         >
-          {page.charAt(0).toUpperCase() + page.slice(1)}
+          {label}
         </button>
       ))}
     </nav>

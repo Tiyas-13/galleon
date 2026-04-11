@@ -94,33 +94,49 @@ Transaction: "${text}"`;
       return Response.json({ result: parsed });
 
     } else if (type === 'query') {
-      const { summary, personalContext } = context ?? {};
+      const { summary, personalContext, history = [] } = context ?? {};
       const ctxNote = personalContext
         ? `\n\nAbout this user: ${personalContext}`
         : '';
       const system = QUERY_SYSTEM.replace('{PERSONAL_CONTEXT}', ctxNote);
 
+      // Build multi-turn messages: seed with financial data, then replay history
+      const seedMsg  = { role: 'user',      content: `Here is my current financial data for context:\n${summary}` };
+      const seedReply = { role: 'assistant', content: 'Got it — I have your financial data. What would you like to know?' };
+      const historyMsgs = history
+        .filter(m => m.text && m.text !== '✦ Analyse my vault') // skip system-style messages
+        .map(m => ({ role: m.role, content: m.text }));
+      const finalMsg = { role: 'user', content: text };
+
       const msg = await client.messages.create({
         model: 'claude-haiku-4-5',
         max_tokens: 512,
         system,
-        messages: [{ role: 'user', content: `Financial data:\n${summary}\n\nQuestion: ${text}` }],
+        messages: [seedMsg, seedReply, ...historyMsgs, finalMsg],
       });
 
       return Response.json({ result: msg.content[0]?.text?.trim() });
 
     } else if (type === 'analyse') {
-      const { summary, personalContext } = context ?? {};
+      const { summary, personalContext, history = [] } = context ?? {};
       const ctxNote = personalContext
         ? `\n\nAbout this user (factor this into your advice): ${personalContext}`
         : '';
       const system = ANALYSE_SYSTEM.replace('{PERSONAL_CONTEXT}', ctxNote);
 
+      // Include prior conversation context so the briefing feels aware of what was discussed
+      const historyMsgs = history
+        .filter(m => m.text && m.text !== '✦ Analyse my vault')
+        .map(m => ({ role: m.role, content: m.text }));
+
       const msg = await client.messages.create({
         model: 'claude-haiku-4-5',
         max_tokens: 1024,
         system,
-        messages: [{ role: 'user', content: `Here is my complete financial data:\n\n${summary}\n\nPlease give me my vault briefing.` }],
+        messages: [
+          ...historyMsgs,
+          { role: 'user', content: `Here is my complete financial data:\n\n${summary}\n\nPlease give me my vault briefing.` },
+        ],
       });
 
       return Response.json({ result: msg.content[0]?.text?.trim() });
