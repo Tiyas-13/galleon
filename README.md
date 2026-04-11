@@ -58,7 +58,7 @@ service cloud.firestore {
 }
 ```
 
-6. Copy your Firebase config and Anthropic key into `.env.local`:
+6. Copy your Firebase config and Anthropic (or any llm) API key into `.env.local`:
 
 ```
 NEXT_PUBLIC_FIREBASE_API_KEY=
@@ -67,7 +67,7 @@ NEXT_PUBLIC_FIREBASE_PROJECT_ID=
 NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
 NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_APP_ID=
-API_KEY=
+ANTHROPIC_API_KEY= #modify references if you use another name
 ```
 
 ### 3. Run locally
