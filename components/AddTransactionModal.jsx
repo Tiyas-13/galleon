@@ -19,7 +19,51 @@ export default function AddTransactionModal({ onClose, initialData }) {
   const [reversal,   setReversal]   = useState(initialData?.reversal ?? false);
   const [newCat,     setNewCat]     = useState('');
   const [addingCat,  setAddingCat]  = useState(false);
+  const [insight,    setInsight]    = useState('');
   const newCatRef = useRef(null);
+
+  function computeInsight(txnType, txnCat, txnAmount) {
+    if (txnType !== 'expense') return '';
+    const now = new Date();
+    const m = now.getMonth(), y = now.getFullYear();
+
+    // Spending already logged this month in this category (before this transaction)
+    const catSpentSoFar = state.transactions
+      .filter(t => {
+        const d = new Date(t.date + 'T12:00:00');
+        return t.type === 'expense' && t.cat === txnCat &&
+               d.getMonth() === m && d.getFullYear() === y;
+      })
+      .reduce((s, t) => s + t.amount, 0);
+
+    const newCatTotal = catSpentSoFar + txnAmount;
+    const cur = state.currency;
+
+    // Check if category belongs to a budget group
+    const group = state.budgetGroups.find(g => g.categoryIds.includes(txnCat));
+    if (group) {
+      // Total group spending including this new transaction
+      const groupSpentSoFar = state.transactions
+        .filter(t => {
+          const d = new Date(t.date + 'T12:00:00');
+          return t.type === 'expense' && group.categoryIds.includes(t.cat) &&
+                 d.getMonth() === m && d.getFullYear() === y;
+        })
+        .reduce((s, t) => s + t.amount, 0);
+
+      const groupTotal = groupSpentSoFar + txnAmount;
+      const pct        = group.target > 0 ? Math.round((groupTotal / group.target) * 100) : 0;
+      const remaining  = group.target - groupTotal;
+
+      if (remaining < 0) {
+        return `${group.name} is now ${cur}${Math.abs(remaining).toFixed(2)} over budget`;
+      }
+      return `${group.name} is now at ${pct}% of your ${cur}${group.target.toFixed(0)} budget — ${cur}${remaining.toFixed(2)} left`;
+    }
+
+    // No budget group — just show category running total
+    return `${cur}${newCatTotal.toFixed(2)} spent on ${txnCat} this month`;
+  }
 
   // Split fields (only relevant when type === 'expense')
   const [isSplit,    setIsSplit]    = useState(false);
@@ -63,12 +107,15 @@ export default function AddTransactionModal({ onClose, initialData }) {
       return;
     }
 
+    let insightText = '';
+
     if (showSplit) {
       const share = computedShare;
       if (isNaN(share) || share <= 0 || share > amt) {
         alert('Your share must be between 0 and the total amount.');
         return;
       }
+      insightText = computeInsight('expense', cat, share);
       await addTransaction({ type: 'expense', desc: desc.trim(), amount: share, date, cat, from, to: null, notes: notes.trim() });
       if (remainder > 0.001) {
         await addTransaction({ type: 'transfer', desc: `Split: ${desc.trim()}`, amount: remainder, date, cat: 'Splits', from, to: splitsAcct, notes: '' });
@@ -80,13 +127,20 @@ export default function AddTransactionModal({ onClose, initialData }) {
         reversal: isTransfer ? reversal : false,
       });
     } else {
+      insightText = computeInsight(type, cat, amt);
       await addTransaction({
         type, desc: desc.trim(), amount: amt, date, notes: notes.trim(),
         cat, from, to: isTransfer ? to : null,
         reversal: isTransfer ? reversal : false,
       });
     }
-    onClose();
+
+    if (insightText) {
+      setInsight(insightText);
+      setTimeout(onClose, 2200);
+    } else {
+      onClose();
+    }
   }
 
   return (
@@ -234,9 +288,17 @@ export default function AddTransactionModal({ onClose, initialData }) {
           </div>
         </div>
 
+        {insight && (
+          <div className="modal-insight">
+            <span className="modal-insight-icon">✦</span> {insight}
+          </div>
+        )}
+
         <div className="modal-footer">
           <button className="btn" onClick={onClose}>Cancel</button>
-          <button className="btn primary" onClick={handleSave}>{editing ? 'Save changes' : 'Save transaction'}</button>
+          <button className="btn primary" onClick={handleSave} disabled={!!insight}>
+            {editing ? 'Save changes' : 'Save transaction'}
+          </button>
         </div>
       </div>
     </div>
