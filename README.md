@@ -23,12 +23,10 @@ Built with Next.js, Firebase, and Claude. Entirely vibe coded.
 - **Vault analyser** — one tap for a full financial briefing. Balanced, specific, and aware of your personal context. Not just "you overspent" — actually useful
 - **Personal context** — tell the AI about your life once (income, goals, habits, perks) and it factors that into every response, across chat, analysis, and owl post
 - **Budget nudges** — after saving an expense, a toast drops in if you've crossed 75% of a budget group or gone over. Stays quiet when there's nothing worth saying
-- **Server-side API key** — your Anthropic key never touches the client. Per-user rate limiting (30 calls/day) enforced in Firestore
 
 ### 🦉 Owl Post
 - **Weekly reports** — a new letter arrives automatically when you open the page, once per week
 - **Owl vs Howler** — the AI reads your finances and decides. Doing well? A warm parchment letter from Gringotts. Over budget or spending more than you earn? A dramatic red Howler
-- **Savings-aware** — the AI explicitly distinguishes savings groups from spending groups. Exceeding a savings goal gets celebrated, not flagged
 - **Written in character** — owls are proper wizarding correspondence; Howlers are Mrs Weasley-level alarming but actually helpful
 - **Persistent history** — all letters stored in Firestore, up to a year's worth. Tap to expand, delete the ones you don't need, or request one on demand
 
