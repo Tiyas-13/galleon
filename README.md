@@ -34,10 +34,10 @@ Built with Next.js, Firebase, and Claude. Entirely vibe coded.
 
 ### Theming
 - **Choose your house** — Gryffindor, Slytherin, Ravenclaw, or Hufflepuff. The entire app recolours instantly — backgrounds, nav, buttons, modals, charts, toasts, everything
-- Persists across sessions via Firestore
+- Persists across sessions
 
 ### UX details
-- Google Sign-in, sign out from the nav at any time
+- Google Sign-in
 - Setup wizard on first login — accounts, currency, and personal context in one go
 - Full mobile support — bottom-sheet modals, scrollable nav, 16px inputs (no iOS zoom)
 - Demo mode — try everything without an account
