@@ -23,7 +23,8 @@ export const DEFAULT_WIDGETS = [
 const DEFAULT_STATE = {
   accounts: [], transactions: [], budgetGroups: [],
   categories: [...DEFAULT_CATEGORIES],
-  currency: '£', vaultNumber: '', personalContext: '', widgets: DEFAULT_WIDGETS,
+  currency: '£', vaultNumber: '', personalContext: '',
+  house: 'gryffindor', widgets: DEFAULT_WIDGETS,
   setupDone: false, loaded: false,
 };
 
@@ -80,12 +81,15 @@ export function AppProvider({ uid, demo = false, children }) {
       const s = settingsSnap.exists() ? settingsSnap.data() : {};
       const transactions = [];
       txnsSnap.forEach(d => transactions.push({ id: d.id, ...d.data() }));
+      const house = s.house ?? 'gryffindor';
+      document.documentElement.dataset.house = house;
       setState({
         accounts:     s.accounts     ?? [],
         categories:   s.categories   ?? [...DEFAULT_CATEGORIES],
         currency:     s.currency     ?? '£',
         vaultNumber:      s.vaultNumber      ?? '',
         personalContext:  s.personalContext  ?? '',
+        house,
         widgets:      s.widgets      ?? DEFAULT_WIDGETS,
         setupDone:    s.setupDone    ?? false,
         budgetGroups: s.budgetGroups ?? [],
@@ -126,14 +130,15 @@ export function AppProvider({ uid, demo = false, children }) {
   async function writeSettings(next) {
     if (demo) { showSaved(); return; }
     await setDoc(settingsRef, {
-      accounts:     next.accounts,
-      categories:   next.categories,
-      currency:     next.currency,
-      vaultNumber:      next.vaultNumber,
-      personalContext:  next.personalContext,
-      widgets:      next.widgets,
-      setupDone:    next.setupDone,
-      budgetGroups: next.budgetGroups,
+      accounts:        next.accounts,
+      categories:      next.categories,
+      currency:        next.currency,
+      vaultNumber:     next.vaultNumber,
+      personalContext: next.personalContext,
+      house:           next.house ?? 'gryffindor',
+      widgets:         next.widgets,
+      setupDone:       next.setupDone,
+      budgetGroups:    next.budgetGroups,
     });
     showSaved();
   }
@@ -145,6 +150,11 @@ export function AppProvider({ uid, demo = false, children }) {
       writeSettings(next);
       return next;
     });
+  }
+
+  function saveHouse(house) {
+    document.documentElement.dataset.house = house;
+    saveSettings({ house });
   }
 
   async function addTransaction(txnData) {
@@ -194,7 +204,7 @@ export function AppProvider({ uid, demo = false, children }) {
   }
 
   return (
-    <AppContext.Provider value={{ state, saved, insight, showInsight, saveSettings, addTransaction, updateTransaction, deleteTransaction, resetAll }}>
+    <AppContext.Provider value={{ state, saved, insight, showInsight, saveSettings, saveHouse, addTransaction, updateTransaction, deleteTransaction, resetAll }}>
       {children}
     </AppContext.Provider>
   );

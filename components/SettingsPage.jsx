@@ -6,7 +6,7 @@ import { useApp } from '@/context/AppContext';
 import AddAccountModal from './AddAccountModal';
 
 export default function SettingsPage() {
-  const { state, saveSettings, resetAll } = useApp();
+  const { state, saveSettings, saveHouse, resetAll } = useApp();
   const [newCat,          setNewCat]          = useState('');
   const [currency,        setCurrency]        = useState(state.currency);
   const [vaultNumber,     setVaultNumber]     = useState(state.vaultNumber ?? '');
@@ -46,9 +46,39 @@ export default function SettingsPage() {
     await resetAll();
   }
 
+  const HOUSES = [
+    { id: 'gryffindor', name: 'Gryffindor', sigil: '🦁', primary: '#8B1A28', accent: '#C9952A', desc: 'Scarlet & Gold' },
+    { id: 'slytherin',  name: 'Slytherin',  sigil: '🐍', primary: '#1A5C35', accent: '#9EB0BE', desc: 'Emerald & Silver' },
+    { id: 'ravenclaw',  name: 'Ravenclaw',  sigil: '🦅', primary: '#0F2356', accent: '#9B7520', desc: 'Navy & Bronze' },
+    { id: 'hufflepuff', name: 'Hufflepuff', sigil: '🦡', primary: '#252010', accent: '#D4A800', desc: 'Black & Yellow' },
+  ];
+
   return (
     <div className="page">
       <div className="section-title" style={{ marginBottom: 16 }}>Settings</div>
+
+      {/* House picker */}
+      <div className="card">
+        <div className="card-title">Your House</div>
+        <div className="house-picker">
+          {HOUSES.map(h => {
+            const active = (state.house ?? 'gryffindor') === h.id;
+            return (
+              <button
+                key={h.id}
+                className={`house-card${active ? ' active' : ''}`}
+                onClick={() => saveHouse(h.id)}
+                style={{ '--h-primary': h.primary, '--h-accent': h.accent }}
+              >
+                <div className="house-sigil">{h.sigil}</div>
+                <div className="house-name">{h.name}</div>
+                <div className="house-desc">{h.desc}</div>
+                {active && <div className="house-check">✓</div>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       <div className="card">
         <div className="card-title">Categories</div>

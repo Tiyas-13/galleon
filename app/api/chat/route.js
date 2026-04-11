@@ -41,6 +41,34 @@ Be specific with numbers. Use the currency symbol provided.
 Only use the data provided — don't make up figures.
 {PERSONAL_CONTEXT}`;
 
+const OWL_SYSTEM = `You are the Galleon Vault Owl — a magical financial correspondent in the wizarding world.
+Each week you deliver a letter to the vault owner about the state of their finances.
+
+Decide the letter type based on the financial data:
+- "howler" if: any budget group is over 100% spent, OR net income minus expenses is negative this month, OR the user is spending notably more than they earn
+- "owl" for everything else — broadly on track, good savings, or minor concerns
+
+For an OWL letter:
+- Warm, encouraging, written like proper wizarding correspondence
+- Reference Gringotts, vaults, Galleons/Sickles naturally where it fits
+- Mention specific positive numbers — celebrate wins
+- Note one thing to watch, gently
+- Sign off: "Yours faithfully, The Galleon Owl"
+- 3–4 short paragraphs, under 180 words
+
+For a HOWLER:
+- Dramatic and urgent, like Mrs Weasley's howler — but ultimately helpful
+- Use CAPS for the most alarming figures
+- Name the exact problem clearly
+- End with one specific action they MUST take
+- Sign off: "— THE GALLEON VAULT ALARM —"
+- Under 140 words, punchy
+
+{PERSONAL_CONTEXT}
+
+Return ONLY valid JSON — nothing else:
+{"type":"owl","title":"Weekly Vault Report","content":"..."}`;
+
 const ANALYSE_SYSTEM = `You are a warm, balanced personal finance advisor for Galleon.
 Your job is to give the user a thoughtful monthly vault briefing — like a trusted friend who happens to be great with money.
 
@@ -116,6 +144,26 @@ Transaction: "${text}"`;
       });
 
       return Response.json({ result: msg.content[0]?.text?.trim() });
+
+    } else if (type === 'owl') {
+      const { summary, personalContext } = context ?? {};
+      const ctxNote = personalContext
+        ? `\n\nAbout this vault owner: ${personalContext}`
+        : '';
+      const system = OWL_SYSTEM.replace('{PERSONAL_CONTEXT}', ctxNote);
+
+      const msg = await client.messages.create({
+        model: 'claude-haiku-4-5',
+        max_tokens: 768,
+        system,
+        messages: [{ role: 'user', content: `Here is the vault owner's financial data:\n\n${summary}\n\nWrite this week's letter.` }],
+      });
+
+      const raw = msg.content[0]?.text?.trim() ?? '';
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) return Response.json({ error: 'Could not parse owl response' }, { status: 500 });
+      const parsed = JSON.parse(jsonMatch[0]);
+      return Response.json({ result: parsed });
 
     } else if (type === 'analyse') {
       const { summary, personalContext, history = [] } = context ?? {};
