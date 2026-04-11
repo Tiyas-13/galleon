@@ -13,6 +13,7 @@ import BudgetPage from '@/components/BudgetPage';
 import AccountsPage from '@/components/AccountsPage';
 import SettingsPage from '@/components/SettingsPage';
 import HomePage from '@/components/HomePage';
+import AiPanel from '@/components/AiPanel';
 
 export default function Home() {
   const [authUser, setAuthUser] = useState(undefined);
@@ -62,6 +63,7 @@ function AppShell() {
         <PageComponent setActivePage={setActivePage} />
       </main>
       {saved && <div className="saved-toast">Saved</div>}
+      <AiPanel />
     </>
   );
 }
