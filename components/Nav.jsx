@@ -26,6 +26,9 @@ export default function Nav({ activePage, setActivePage }) {
           {label}
         </button>
       ))}
+      <button className="nav-signout" onClick={() => signOut(auth)} title="Sign out">
+        Sign out
+      </button>
     </nav>
   );
 }

@@ -126,6 +126,22 @@ body {
   box-shadow: 0 1px 8px rgba(139,26,40,0.4);
 }
 
+.nav-signout {
+  margin-left: auto;
+  padding: 5px 13px; border-radius: var(--radius-md);
+  border: 1px solid rgba(230, 200, 155, 0.2);
+  background: transparent;
+  color: rgba(230, 200, 155, 0.55);
+  font-size: 12px; font-family: var(--font);
+  cursor: pointer; transition: all 0.15s;
+  letter-spacing: 0.01em; flex-shrink: 0;
+}
+.nav-signout:hover {
+  background: rgba(139,26,40,0.2);
+  border-color: rgba(139,26,40,0.5);
+  color: rgba(230, 200, 155, 0.9);
+}
+
 /* ── Page ─────────────────────────────────────────────────────────────────── */
 .page { padding: 28px 24px; max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
 .page-wide { max-width: 1400px; }
@@ -865,6 +881,7 @@ body {
   .nav-logo-btn { margin-right: 8px; flex-shrink: 0; }
   .nav-logo { font-size: 14px; letter-spacing: 0.1em; }
   .nav-btn { padding: 6px 10px; font-size: 12px; flex-shrink: 0; }
+  .nav-signout { font-size: 11px; padding: 4px 10px; flex-shrink: 0; }
 
   /* Forms */
   .form-row { grid-template-columns: 1fr; }
