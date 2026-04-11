@@ -9,7 +9,7 @@ function calcMonthlySpend(transactions, budgetGroups) {
 
   const spendByCategory = {};
   transactions.forEach(t => {
-    if (t.type === 'income') return;
+    if (t.type !== 'expense') return;
     if (!t.cat) return;
     const d = new Date(t.date + 'T12:00:00');
     if (d.getMonth() !== month || d.getFullYear() !== year) return;
