@@ -107,7 +107,7 @@ export function AppProvider({ uid, demo = false, children }) {
   function showInsight(text) {
     setInsight(text);
     clearTimeout(insightTimer.current);
-    insightTimer.current = setTimeout(() => setInsight(''), 4500);
+    insightTimer.current = setTimeout(() => setInsight(''), 10000);
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────

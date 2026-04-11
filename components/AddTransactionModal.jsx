@@ -57,11 +57,15 @@ export default function AddTransactionModal({ onClose, initialData }) {
       if (remaining < 0) {
         return `${group.name} is now ${cur}${Math.abs(remaining).toFixed(2)} over budget`;
       }
-      return `${group.name} is now at ${pct}% of your ${cur}${group.target.toFixed(0)} budget — ${cur}${remaining.toFixed(2)} left`;
+      if (pct >= 75) {
+        return `${group.name} is at ${pct}% of your ${cur}${group.target.toFixed(0)} budget — ${cur}${remaining.toFixed(2)} left`;
+      }
+      // Under 75% — not worth surfacing
+      return '';
     }
 
-    // No budget group — just show category running total
-    return `${cur}${newCatTotal.toFixed(2)} spent on ${txnCat} this month`;
+    // No budget group — skip, not actionable
+    return '';
   }
 
   // Split fields (only relevant when type === 'expense')
