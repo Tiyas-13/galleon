@@ -6,7 +6,7 @@ const today = () => new Date().toISOString().split('T')[0];
 
 export default function AddTransactionModal({ onClose, initialData }) {
   const { state, addTransaction, updateTransaction, saveSettings } = useApp();
-  const editing = !!initialData;
+  const editing = !!initialData?.id; // only true when editing an existing transaction (has an id)
 
   const [type,       setType]       = useState(initialData?.type  ?? 'expense');
   const [desc,       setDesc]       = useState(initialData?.desc  ?? '');
