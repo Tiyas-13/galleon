@@ -44,7 +44,11 @@ export default function OverviewPage() {
   const { state, saveSettings } = useApp();
   const [showPicker, setShowPicker] = useState(false);
   const [period,     setPeriod]     = useState('month');
-  const widgets = state.widgets ?? DEFAULT_WIDGETS;
+  // If the saved layout looks like it came from a mobile single-column view
+  // (all widgets at x:0 with w:1), reset to defaults to avoid a broken desktop layout
+  const rawWidgets = state.widgets ?? DEFAULT_WIDGETS;
+  const looksLikeMobileLayout = rawWidgets.length > 0 && rawWidgets.every(w => w.x === 0 && w.w === 1);
+  const widgets = looksLikeMobileLayout ? DEFAULT_WIDGETS : rawWidgets;
 
   function addWidget(type) {
     if (widgets.find(w => w.type === type)) return;

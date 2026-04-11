@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import { Responsive, WidthProvider } from 'react-grid-layout/legacy';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -18,9 +19,17 @@ const LABELS = {
 };
 
 export default function WidgetGrid({ widgets, period, onLayoutChange, onRemove }) {
+  const [currentBreakpoint, setCurrentBreakpoint] = useState('lg');
+
   const layouts = {
     lg: widgets.map(w => ({ i: w.i, x: w.x, y: w.y, w: w.w, h: w.h, minW: 3, minH: 4 })),
   };
+
+  function handleLayoutChange(layout) {
+    // Only persist layout changes made on desktop — mobile uses a single-column
+    // auto layout that should never overwrite the desktop arrangement
+    if (currentBreakpoint === 'lg') onLayoutChange(layout);
+  }
 
   return (
     <ResponsiveGridLayout
@@ -30,7 +39,8 @@ export default function WidgetGrid({ widgets, period, onLayoutChange, onRemove }
       cols={{ lg: 12, sm: 1 }}
       rowHeight={48}
       draggableHandle=".widget-drag-handle"
-      onLayoutChange={onLayoutChange}
+      onLayoutChange={handleLayoutChange}
+      onBreakpointChange={bp => setCurrentBreakpoint(bp)}
       margin={[12, 12]}
     >
       {widgets.map(w => {
