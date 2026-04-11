@@ -2,7 +2,7 @@
 
 A personal finance tracker with a Gryffindor soul. Track transactions, manage budgets, and get AI-powered insights — with floating embers and all.
 
-Built with Next.js, Firebase, and Claude. Entirely vibe coded - the real magic?.
+Built with Next.js, Firebase, and Claude. Entirely vibe coded - the real magic?
 
 ## Features
 
