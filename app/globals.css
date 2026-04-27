@@ -652,6 +652,59 @@ body {
 
 /* Savings group */
 :root { --savings-green: #2ecc71; }
+/* ── Flex Goals ─────────────────────────────────────────────────────────── */
+.goals-explainer {
+  font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;
+  padding: 10px 14px; background: var(--bg-input);
+  border-radius: 8px; border: 1px solid var(--border);
+  line-height: 1.5;
+}
+.goals-form-title {
+  font-size: 13px; font-weight: 600; margin-bottom: 12px;
+  color: var(--text-secondary); letter-spacing: 0.06em; text-transform: uppercase;
+}
+.goal-card { cursor: pointer; }
+.goal-card--over  { border-color: rgba(var(--primary-rgb), 0.3); }
+.goal-card--ahead { border-color: rgba(var(--accent-rgb), 0.35); }
+
+.goal-status-badge {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* Pace marker — a thin tick showing where you *should* be at this point in the year */
+.budget-track { position: relative; }
+.goal-pace-marker {
+  position: absolute; top: -2px; bottom: -2px;
+  width: 2px; border-radius: 99px;
+  background: rgba(var(--on-dark-rgb), 0.25);
+  pointer-events: none;
+}
+
+/* Fill colours per status */
+.goal-fill--ontrack { background: var(--gold-mid); }
+.goal-fill--under   { background: var(--savings-green); }
+.goal-fill--ahead   { background: var(--accent-bright); }
+.goal-fill--over    { background: var(--primary); }
+
+/* Stats row */
+.goal-stats {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px; margin-top: 2px;
+}
+.goal-stat { display: flex; flex-direction: column; gap: 2px; }
+.goal-stat--mid   { text-align: center; }
+.goal-stat--right { text-align: right; }
+.goal-stat-value {
+  font-size: 15px; font-weight: 700;
+  color: var(--text-primary); font-variant-numeric: tabular-nums;
+}
+.goal-stat-label {
+  font-size: 10px; color: var(--text-secondary);
+  letter-spacing: 0.03em;
+}
+.goal-over { color: var(--primary); }
+
 .savings-group { border-color: rgba(46, 204, 113, 0.25); }
 .savings-group:hover { border-color: rgba(46, 204, 113, 0.45); }
 .savings-badge {

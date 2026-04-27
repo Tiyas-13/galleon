@@ -21,7 +21,7 @@ export const DEFAULT_WIDGETS = [
 ];
 
 const DEFAULT_STATE = {
-  accounts: [], transactions: [], budgetGroups: [],
+  accounts: [], transactions: [], budgetGroups: [], goals: [],
   categories: [...DEFAULT_CATEGORIES],
   currency: '£', vaultNumber: '', personalContext: '',
   house: 'gryffindor', widgets: DEFAULT_WIDGETS,
@@ -93,6 +93,7 @@ export function AppProvider({ uid, demo = false, children }) {
         widgets:      s.widgets      ?? DEFAULT_WIDGETS,
         setupDone:    s.setupDone    ?? false,
         budgetGroups: s.budgetGroups ?? [],
+        goals:        s.goals        ?? [],
         transactions,
         loaded: true,
       });
@@ -139,6 +140,7 @@ export function AppProvider({ uid, demo = false, children }) {
       widgets:         next.widgets,
       setupDone:       next.setupDone,
       budgetGroups:    next.budgetGroups,
+      goals:           next.goals ?? [],
     });
     showSaved();
   }

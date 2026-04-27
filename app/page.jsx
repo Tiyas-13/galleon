@@ -13,9 +13,10 @@ import BudgetPage from '@/components/BudgetPage';
 import AccountsPage from '@/components/AccountsPage';
 import SettingsPage from '@/components/SettingsPage';
 import HomePage from '@/components/HomePage';
-import AiPanel  from '@/components/AiPanel';
-import AiPage   from '@/components/AiPage';
-import OwlPage  from '@/components/OwlPage';
+import AiPanel   from '@/components/AiPanel';
+import AiPage    from '@/components/AiPage';
+import OwlPage   from '@/components/OwlPage';
+import GoalsPage from '@/components/GoalsPage';
 
 export default function Home() {
   const [authUser, setAuthUser] = useState(undefined);
@@ -44,6 +45,7 @@ const PAGES = {
   transactions: TransactionsPage,
   overview:     OverviewPage,
   budget:       BudgetPage,
+  goals:        GoalsPage,
   accounts:     AccountsPage,
   owls:         OwlPage,
   assistant:    AiPage,

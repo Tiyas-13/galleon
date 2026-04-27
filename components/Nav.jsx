@@ -6,6 +6,7 @@ const PAGES = [
   { id: 'transactions', label: 'Transactions' },
   { id: 'overview',     label: 'Overview'     },
   { id: 'budget',       label: 'Budget'       },
+  { id: 'goals',        label: '🎯 Goals'     },
   { id: 'accounts',     label: 'Accounts'     },
   { id: 'owls',         label: '🦉 Owl Post'  },
   { id: 'assistant',    label: '✦ Assistant'  },
