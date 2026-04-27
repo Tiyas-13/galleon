@@ -10,6 +10,7 @@ import AccountBalances    from './widgets/AccountBalances';
 import TopSpending        from './widgets/TopSpending';
 import MonthComparison    from './widgets/MonthComparison';
 import TopCategories      from './widgets/TopCategories';
+import NetWorthHistory    from './widgets/NetWorthHistory';
 
 // Load grid only on client — it needs browser APIs
 const WidgetGrid = dynamic(() => import('./WidgetGrid'), { ssr: false });
@@ -19,6 +20,7 @@ const WIDGET_CATALOG = [
   { type: 'expensesByCategory', label: 'Expenses by Category', desc: 'Bar chart of spending per category' },
   { type: 'budgetOverview',     label: 'Budget Overview',      desc: 'Progress bars for all your budgets' },
   { type: 'accountBalances',    label: 'Account Balances',     desc: 'Balances and net worth' },
+  { type: 'netWorthHistory',    label: 'Net Worth Over Time',  desc: 'Running tally of total net worth month by month' },
   { type: 'topSpending',        label: 'Top Transactions',     desc: 'Biggest expenses this period' },
   { type: 'monthComparison',    label: 'Month Comparison',     desc: 'This month vs last month spending' },
   { type: 'topCategories',      label: 'Top Categories',       desc: 'Biggest spending categories with % breakdown' },
@@ -29,6 +31,7 @@ export const WIDGET_COMPONENTS = {
   expensesByCategory: ExpensesByCategory,
   budgetOverview:     BudgetOverview,
   accountBalances:    AccountBalances,
+  netWorthHistory:    NetWorthHistory,
   topSpending:        TopSpending,
   monthComparison:    MonthComparison,
   topCategories:      TopCategories,
@@ -52,7 +55,7 @@ export default function OverviewPage() {
 
   function addWidget(type) {
     if (widgets.find(w => w.type === type)) return;
-    const sizes = { incomeVsExpenses: [6,6], expensesByCategory: [6,8], budgetOverview: [6,8], accountBalances: [6,6], topSpending: [6,8], monthComparison: [6,6], topCategories: [6,8] };
+    const sizes = { incomeVsExpenses: [6,6], expensesByCategory: [6,8], budgetOverview: [6,8], accountBalances: [6,6], netWorthHistory: [6,9], topSpending: [6,8], monthComparison: [6,6], topCategories: [6,8] };
     const [w, h] = sizes[type] ?? [6, 6];
     saveSettings({ widgets: [...widgets, { i: type + '-' + Date.now(), type, x: 0, y: Infinity, w, h }] });
     setShowPicker(false);

@@ -214,5 +214,8 @@ export function useApp() { return useContext(AppContext); }
 
 export function useFmt() {
   const { state } = useApp();
-  return n => state.currency + Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return n => {
+    const abs = Math.abs(n).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return n < 0 ? `-${state.currency}${abs}` : `${state.currency}${abs}`;
+  };
 }

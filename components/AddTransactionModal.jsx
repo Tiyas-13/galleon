@@ -25,46 +25,33 @@ export default function AddTransactionModal({ onClose, initialData }) {
     if (txnType !== 'expense') return '';
     const now = new Date();
     const m = now.getMonth(), y = now.getFullYear();
-
-    // Spending already logged this month in this category (before this transaction)
-    const catSpentSoFar = state.transactions
-      .filter(t => {
-        const d = new Date(t.date + 'T12:00:00');
-        return t.type === 'expense' && t.cat === txnCat &&
-               d.getMonth() === m && d.getFullYear() === y;
-      })
-      .reduce((s, t) => s + t.amount, 0);
-
-    const newCatTotal = catSpentSoFar + txnAmount;
     const cur = state.currency;
 
     // Check if category belongs to a budget group
     const group = state.budgetGroups.find(g => g.categoryIds.includes(txnCat));
-    if (group) {
-      // Total group spending including this new transaction
-      const groupSpentSoFar = state.transactions
-        .filter(t => {
-          const d = new Date(t.date + 'T12:00:00');
-          return t.type === 'expense' && group.categoryIds.includes(t.cat) &&
-                 d.getMonth() === m && d.getFullYear() === y;
-        })
-        .reduce((s, t) => s + t.amount, 0);
+    if (!group || group.isSavings) return ''; // savings groups don't warn on spend
 
-      const groupTotal = groupSpentSoFar + txnAmount;
-      const pct        = group.target > 0 ? Math.round((groupTotal / group.target) * 100) : 0;
-      const remaining  = group.target - groupTotal;
+    // Mirror calcMonthlySpend logic: expenses add, income subtracts, transfers use reversal flag
+    const groupSpentSoFar = state.transactions.reduce((sum, t) => {
+      if (!group.categoryIds.includes(t.cat)) return sum;
+      if (t.type === 'transfer' && !t.cat) return sum;
+      const d = new Date(t.date + 'T12:00:00');
+      if (d.getMonth() !== m || d.getFullYear() !== y) return sum;
+      if (t.type === 'income')    return sum - t.amount;
+      if (t.type === 'transfer')  return sum + (t.reversal ? -t.amount : t.amount);
+      return sum + t.amount; // expense
+    }, 0);
 
-      if (remaining < 0) {
-        return `${group.name} is now ${cur}${Math.abs(remaining).toFixed(2)} over budget`;
-      }
-      if (pct >= 75) {
-        return `${group.name} is at ${pct}% of your ${cur}${group.target.toFixed(0)} budget — ${cur}${remaining.toFixed(2)} left`;
-      }
-      // Under 75% — not worth surfacing
-      return '';
+    const groupTotal = groupSpentSoFar + txnAmount;
+    const pct        = group.target > 0 ? Math.round((groupTotal / group.target) * 100) : 0;
+    const remaining  = group.target - groupTotal;
+
+    if (remaining < 0) {
+      return `${group.name} is now ${cur}${Math.abs(remaining).toFixed(2)} over budget`;
     }
-
-    // No budget group — skip, not actionable
+    if (pct >= 75) {
+      return `${group.name} is at ${pct}% of your ${cur}${group.target.toFixed(0)} budget — ${cur}${remaining.toFixed(2)} left`;
+    }
     return '';
   }
 
@@ -107,6 +94,10 @@ export default function AddTransactionModal({ onClose, initialData }) {
     const amt = parseFloat(amount);
     if (!desc.trim() || isNaN(amt) || amt <= 0 || !date) {
       alert('Please fill in description, amount, and date.');
+      return;
+    }
+    if (isTransfer && from === to) {
+      alert('From and To accounts must be different for a transfer.');
       return;
     }
 
@@ -273,10 +264,15 @@ export default function AddTransactionModal({ onClose, initialData }) {
           )}
         </div>
 
-        {isTransfer && cat && (
+        {isTransfer && (
           <label className="split-toggle-row">
             <input type="checkbox" checked={reversal} onChange={e => setReversal(e.target.checked)} />
-            This reverses a previous entry (e.g. withdrawing from savings)
+            <span>
+              This is a withdrawal or repayment
+              <span style={{ display: 'block', fontSize: 11, color: 'var(--text-secondary)', marginTop: 1 }}>
+                e.g. taking money out of savings, or a friend paying you back for a split
+              </span>
+            </span>
           </label>
         )}
 

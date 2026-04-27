@@ -9,13 +9,20 @@ function calcMonthlySpend(transactions, budgetGroups) {
 
   const spendByCategory = {};
   transactions.forEach(t => {
-    if (t.type === 'income') return;
     if (t.type === 'transfer' && !t.cat) return; // uncategorised transfers ignored
     if (!t.cat) return;
     const d = new Date(t.date + 'T12:00:00');
     if (d.getMonth() !== month || d.getFullYear() !== year) return;
 
-    const delta = t.reversal ? -t.amount : t.amount;
+    let delta;
+    if (t.type === 'income') {
+      // Income with a category reduces that category's spend (refund / rebate)
+      delta = -t.amount;
+    } else if (t.type === 'transfer') {
+      delta = t.reversal ? -t.amount : t.amount;
+    } else {
+      delta = t.amount; // expense
+    }
     spendByCategory[t.cat] = (spendByCategory[t.cat] || 0) + delta;
   });
 
@@ -148,13 +155,17 @@ export default function BudgetPage() {
 
       {/* ── Budget group rows ── */}
       {groups.map(group => {
-        const pct        = group.target > 0 ? (group.spent / group.target) * 100 : group.spent > 0 ? 100 : 0;
         const isSavings  = group.isSavings ?? false;
+        // Clamp displayed spend to 0 minimum for spending groups
+        // (income refunds can push net negative; show as £0 credit rather than negative bar)
+        const displaySpent = isSavings ? group.spent : Math.max(0, group.spent);
+        const hasCredit    = !isSavings && group.spent < 0; // net refunds exceed spend
+        const pct          = group.target > 0 ? (displaySpent / group.target) * 100 : displaySpent > 0 ? 100 : 0;
         // For savings: "over" is good (hit goal). For spending: "over" is bad.
-        const overBudget = !isSavings && group.spent > group.target;
-        const hitGoal    = isSavings && group.spent >= group.target;
-        const normalPct  = Math.min(pct, 100);
-        const overflowPct = overBudget ? Math.min(((group.spent - group.target) / group.target) * 100, 100) : 0;
+        const overBudget   = !isSavings && group.spent > group.target;
+        const hitGoal      = isSavings && group.spent >= group.target;
+        const normalPct    = Math.min(pct, 100);
+        const overflowPct  = overBudget ? Math.min(((group.spent - group.target) / group.target) * 100, 100) : 0;
         const isExpanded = expandedId === group.id;
 
         return (
@@ -173,9 +184,11 @@ export default function BudgetPage() {
                   ? hitGoal
                     ? <>{fmt(group.spent)} <span style={{ color: 'var(--savings-green)', fontWeight: 700 }}>✓ goal hit!</span></>
                     : <>{fmt(group.spent)} <span style={{ color: 'var(--text-secondary)' }}>/ {fmt(group.target)} goal</span></>
-                  : overBudget
-                    ? <>{fmt(group.spent)} <span style={{ color: 'var(--crimson)', fontWeight: 700 }}>({fmt(group.spent - group.target)} over)</span></>
-                    : <>{fmt(group.spent)} <span style={{ color: 'var(--text-secondary)' }}>/ {fmt(group.target)}</span></>
+                  : hasCredit
+                    ? <span style={{ color: 'var(--savings-green)', fontWeight: 600 }}>{fmt(Math.abs(group.spent))} credit</span>
+                    : overBudget
+                      ? <>{fmt(group.spent)} <span style={{ color: 'var(--crimson)', fontWeight: 700 }}>({fmt(group.spent - group.target)} over)</span></>
+                      : <>{fmt(displaySpent)} <span style={{ color: 'var(--text-secondary)' }}>/ {fmt(group.target)}</span></>
                 }
               </div>
             </div>
@@ -183,7 +196,7 @@ export default function BudgetPage() {
             {/* Progress bar */}
             <div className="budget-track">
               <div
-                className={`budget-fill${overBudget ? ' over' : ''}${isSavings ? ' savings' : ''}`}
+                className={`budget-fill${overBudget ? ' over' : ''}${isSavings ? ' savings' : ''}${hasCredit ? ' credit' : ''}`}
                 style={{ width: `${normalPct}%` }}
               />
               {overBudget && <div className="budget-overflow" style={{ width: `${overflowPct}%` }} />}

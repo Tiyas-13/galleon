@@ -647,6 +647,7 @@ body {
 .budget-fill:only-child { border-radius: 99px; }
 .budget-fill.over { background: var(--crimson); }
 .budget-fill.savings { background: var(--savings-green); }
+.budget-fill.credit  { background: var(--savings-green); opacity: 0.5; }
 .budget-overflow { height: 100%; background: var(--crimson-light); opacity: 0.7; transition: width 0.5s ease; }
 
 /* Savings group */
@@ -1503,6 +1504,42 @@ body {
 .widget-bar-fill.expenses { background: var(--crimson-light); }
 .widget-bar-fill.savings  { background: var(--gold-mid); }
 .widget-bar-pct { font-size: 11px; min-width: 32px; text-align: right; font-weight: 600; }
+
+/* ── Net Worth History widget ──────────────────────────────────────────────── */
+.nw-widget { display: flex; flex-direction: column; height: 100%; }
+.nw-table-wrap {
+  flex: 1; overflow-y: auto; border-radius: 8px;
+  border: 1px solid var(--border);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.nw-table {
+  width: 100%; border-collapse: collapse; font-size: 12px;
+}
+.nw-table thead {
+  position: sticky; top: 0; z-index: 1;
+  background: var(--bg-secondary);
+}
+.nw-table th {
+  padding: 7px 12px; text-align: left;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--text-secondary); border-bottom: 1px solid var(--border);
+}
+.nw-table th:nth-child(2),
+.nw-table th:nth-child(3) { text-align: right; }
+.nw-table td {
+  padding: 8px 12px; border-bottom: 1px solid rgba(var(--on-dark-rgb), 0.04);
+  color: var(--text-primary);
+}
+.nw-table tr:last-child td { border-bottom: none; }
+.nw-table tr:first-child td { font-weight: 600; } /* most recent row */
+.nw-month { color: var(--text-secondary); font-size: 11px; }
+.nw-table td:nth-child(2),
+.nw-table td:nth-child(3) { text-align: right; font-variant-numeric: tabular-nums; }
+.nw-total { font-weight: 600; }
+.nw-pos  { color: var(--savings-green); font-weight: 600; }
+.nw-neg  { color: var(--primary); font-weight: 600; }
+.nw-flat { color: var(--text-secondary); }
 
 /* Widget picker modal items */
 .widget-picker-item {
