@@ -24,6 +24,7 @@ const DEFAULT_STATE = {
   accounts: [], transactions: [], budgetGroups: [], goals: [],
   categories: [...DEFAULT_CATEGORIES],
   currency: '£', vaultNumber: '', personalContext: '',
+  projectedAnnualIncome: null,
   house: 'gryffindor', widgets: DEFAULT_WIDGETS,
   setupDone: false, loaded: false,
 };
@@ -93,7 +94,8 @@ export function AppProvider({ uid, demo = false, children }) {
         widgets:      s.widgets      ?? DEFAULT_WIDGETS,
         setupDone:    s.setupDone    ?? false,
         budgetGroups: s.budgetGroups ?? [],
-        goals:        s.goals        ?? [],
+        goals:                s.goals                ?? [],
+        projectedAnnualIncome: s.projectedAnnualIncome ?? null,
         transactions,
         loaded: true,
       });
@@ -139,8 +141,9 @@ export function AppProvider({ uid, demo = false, children }) {
       house:           next.house ?? 'gryffindor',
       widgets:         next.widgets,
       setupDone:       next.setupDone,
-      budgetGroups:    next.budgetGroups,
-      goals:           next.goals ?? [],
+      budgetGroups:          next.budgetGroups,
+      goals:                 next.goals ?? [],
+      projectedAnnualIncome: next.projectedAnnualIncome ?? null,
     });
     showSaved();
   }

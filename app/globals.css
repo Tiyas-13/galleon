@@ -653,6 +653,106 @@ body {
 /* Savings group */
 :root { --savings-green: #2ecc71; }
 /* ── Flex Goals ─────────────────────────────────────────────────────────── */
+
+/* Snapshot card */
+.snapshot-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+.snapshot-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.07em;
+  text-transform: uppercase; color: var(--text-secondary);
+  margin-bottom: 14px;
+}
+/* Income row */
+.snapshot-income-row { margin-bottom: 16px; }
+.snapshot-income-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--text-secondary); margin-bottom: 4px;
+}
+.snapshot-income-display { display: flex; align-items: center; gap: 8px; }
+.snapshot-income-value {
+  font-size: 22px; font-weight: 700; color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+.snapshot-edit-btn {
+  background: none; border: none; cursor: pointer; font-size: 13px;
+  opacity: 0.5; padding: 2px 4px; border-radius: 4px; transition: opacity 0.15s;
+}
+.snapshot-edit-btn:hover { opacity: 1; }
+.snapshot-income-edit {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.snapshot-income-edit input {
+  width: 140px; font-size: 14px; padding: 5px 10px;
+}
+.snapshot-income-sub {
+  font-size: 11px; color: var(--text-secondary); margin-top: 3px; line-height: 1.4;
+}
+
+.snapshot-stats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-bottom: 16px;
+}
+.snapshot-stat { display: flex; flex-direction: column; gap: 3px; }
+.snapshot-stat--mid   { text-align: center; }
+.snapshot-stat--right { text-align: right; }
+.snapshot-stat-value {
+  font-size: 18px; font-weight: 700; color: var(--text-primary);
+  font-variant-numeric: tabular-nums; line-height: 1.1;
+}
+.snapshot-stat-label {
+  font-size: 11px; color: var(--text-secondary); line-height: 1.3;
+}
+.snapshot-basis { display: block; font-size: 10px; opacity: 0.7; margin-top: 1px; }
+.snapshot-surplus .snapshot-stat-value { color: var(--savings-green); }
+.snapshot-deficit .snapshot-stat-value { color: var(--primary); }
+
+/* Stacked bar */
+.snapshot-bar-wrap { margin-bottom: 14px; }
+.snapshot-bar {
+  height: 10px; border-radius: 99px; overflow: hidden;
+  display: flex; background: var(--bg-input); margin-bottom: 8px;
+}
+.snapshot-seg {
+  height: 100%; transition: width 0.5s ease; min-width: 0;
+}
+.snapshot-seg--spending { background: rgba(var(--primary-rgb), 0.55); }
+.snapshot-seg--goals    { background: var(--accent-bright); }
+.snapshot-seg--savings  { background: var(--savings-green); }
+.snapshot-seg--surplus  { background: rgba(var(--on-dark-rgb), 0.12); }
+.snapshot-seg--over     { background: var(--primary); }
+
+.snapshot-legend {
+  display: flex; flex-wrap: wrap; gap: 6px 12px;
+}
+.snapshot-key {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
+  display: flex; align-items: center; gap: 4px; color: var(--text-secondary);
+}
+.snapshot-key::before {
+  content: ''; display: inline-block;
+  width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0;
+}
+.snapshot-key--spending::before { background: rgba(var(--primary-rgb), 0.55); }
+.snapshot-key--goals::before    { background: var(--accent-bright); }
+.snapshot-key--savings::before  { background: var(--savings-green); }
+.snapshot-key--surplus::before  { background: rgba(var(--on-dark-rgb), 0.15); border: 1px solid var(--border); }
+.snapshot-key--over::before     { background: var(--primary); }
+
+/* YTD actual row */
+.snapshot-ytd {
+  display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center;
+  font-size: 11px; color: var(--text-secondary);
+  padding-top: 12px; border-top: 1px solid var(--border);
+}
+.snapshot-ytd strong { color: var(--text-primary); font-weight: 600; }
+.snapshot-ytd .snapshot-surplus { color: var(--savings-green); }
+.snapshot-ytd .snapshot-deficit { color: var(--primary); }
+
 .goals-explainer {
   font-size: 12px; color: var(--text-secondary); margin-bottom: 16px;
   padding: 10px 14px; background: var(--bg-input);
